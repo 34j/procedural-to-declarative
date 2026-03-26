@@ -3,7 +3,7 @@
  */
 
 export type ProceduralFunction = () => Generator<void, void, void>
-export type DeclarativeFunction<T> = (time: number) => T | undefined
+export type DeclarativeFunction<TNumber extends number, T> = (time: TNumber) => T | undefined
 export interface Ref<T> { current: T }
 
 interface LogEntry<TNumber extends number, T> {
@@ -14,7 +14,7 @@ interface LogEntry<TNumber extends number, T> {
 interface RunEntry<TNumber extends number> {
   start: TNumber
   duration: TNumber
-  fn: DeclarativeFunction<void>
+  fn: DeclarativeFunction<TNumber, void>
 }
 
 export class PureTracker<TNumber extends number> {
@@ -29,7 +29,7 @@ export class PureTracker<TNumber extends number> {
     this.runs = []
   }
 
-  useRef = (v: T): Ref<T> => {
+  useRef = <T>(v: T): Ref<T> => {
     const ref = {} as Ref<T>
     Object.defineProperty(ref, 'current', {
       get: () => {
@@ -45,10 +45,10 @@ export class PureTracker<TNumber extends number> {
   }
 
   sleep = (dt: TNumber): void => {
-    this.t += dt
+    this.t = (this.t + dt) as TNumber
   }
 
-  compile = (f: ProceduralFunction): DeclarativeFunction<void> => {
+  compile = (f: ProceduralFunction): DeclarativeFunction<TNumber, void> => {
     this.reset()
     const g = f()
     while (!g.next().done)
@@ -75,7 +75,7 @@ export class PureTracker<TNumber extends number> {
       // Because t is set to the current time, the function
       // may add new log entries at the current time.
       for (const e of [...baseRuns].reverse()) {
-        const local = time - e.start
+        const local = (time - e.start) as TNumber
         if (local >= 0 && local <= e.duration)
           e.fn(local)
       }
@@ -87,7 +87,7 @@ export class PureTracker<TNumber extends number> {
     }
   }
 
-  run = (f: DeclarativeFunction<void>, duration: TNumber): void => {
+  run = (f: DeclarativeFunction<TNumber, void>, duration: TNumber): void => {
     if (!this.isCompiling) {
       throw new Error('run cannot be called within the function passed to run')
     }
@@ -96,4 +96,5 @@ export class PureTracker<TNumber extends number> {
   }
 }
 
-export class Tracker<T> extends PureTracker<T> {}
+export class Tracker<TNumber extends number> extends PureTracker<TNumber> {
+}
