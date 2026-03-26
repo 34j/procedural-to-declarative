@@ -17,7 +17,7 @@
 
 ---
 
-TODO: Project Description.
+Compile procedural async state transitions into declarative time functions.
 
 ## Installation
 
@@ -28,11 +28,28 @@ npm install procedural-to-declarative
 ## Usage
 
 ```ts
-import { myPackage } from 'procedural-to-declarative'
+import { Tracker } from 'procedural-to-declarative'
 
-myPackage('hello')
-// => 'hello from my package'
+const tracker = new Tracker<number>()
+async function proc() {
+  const [, setX] = tracker.useState(0)
+  await tracker.sleep(1)
+  setX(1)
+  await tracker.sleep(1)
+  setX(2)
+}
+const x = await tracker.compile(proc)
+
+x(0.5) // 0
+x(2.5) // 2
 ```
+
+## API
+
+- `useState(initial)`: 現在時刻の初期値を記録し、`setState` を返す
+- `sleep(dt)`: トラッカー内部時刻を `dt` 進める
+- `compile(proc)`: 手続き関数を `time => state` 関数に変換し、`time` が `0..maxT` 外なら `undefined`
+- `run(fn, duration)`: `DeclarativeFunction<void>` を現在時刻開始で `duration` の間だけ登録する
 
 [build-img]:https://github.com/34j/procedural-to-declarative/actions/workflows/release.yml/badge.svg
 [build-url]:https://github.com/34j/procedural-to-declarative/actions/workflows/release.yml
