@@ -5,23 +5,26 @@
 export type ProceduralFunction = () => Generator<void, void, void>
 export type DeclarativeFunction<T> = (time: number) => T | undefined
 export interface Ref<T> { current: T }
-interface LogEntry<TNumber extends number, TValue> {
+
+interface LogEntry<TNumber extends number, T> {
   t: TNumber
-  v: TValue
+  v: T
 }
-interface RunEntry<TNumber extends number, TFn extends DeclarativeFunction<void>> {
+
+interface RunEntry<TNumber extends number> {
   start: TNumber
   duration: TNumber
-  fn: TFn
+  fn: DeclarativeFunction<void>
 }
 
 export class PureTracker<TNumber extends number> {
-  protected t = 0
+  protected t: TNumber = 0 as TNumber
   protected log: LogEntry<TNumber, any>[] = []
-  protected runs: RunEntry<TNumber, DeclarativeFunction<void>>[] = []
+  protected runs: RunEntry<TNumber>[] = []
+  protected isCompiling = false
 
   reset = (): void => {
-    this.t = 0
+    this.t = 0 as TNumber
     this.log = []
     this.runs = []
   }
@@ -30,10 +33,10 @@ export class PureTracker<TNumber extends number> {
     const ref = {} as Ref<T>
     Object.defineProperty(ref, 'current', {
       get: () => {
-        throw new Error('PureTracker does not support reading from refs during procedural execution')
+        throw new Error('Ref is write-only. Use Tracker instead')
       },
       set: (next: T) => {
-        this.log.push({ t: this.t, v: next})
+        this.log.push({ t: this.t, v: next })
       },
       enumerable: true,
     })
@@ -41,37 +44,56 @@ export class PureTracker<TNumber extends number> {
     return ref
   }
 
-  sleep = (dt: number): void => {
+  sleep = (dt: TNumber): void => {
     this.t += dt
   }
 
-  compile = (f: ProceduralFunction): DeclarativeFunction<T> => {
+  compile = (f: ProceduralFunction): DeclarativeFunction<void> => {
+    this.reset()
     const g = f()
     while (!g.next().done)
       continue
-    const maxT = Math.max(this.t, ...this.runs.map(([offset, duration]) => offset + duration))
+    const maxT = Math.max(this.t, ...this.runs.map(e => e.start + e.duration))
+    // Copy the log and runs so that they can be safely mutated during execution
     const baseLog = [...this.log]
     const baseRuns = [...this.runs]
     return (time) => {
+      // Return undefined if time is out of bounds
       if (time < 0 || time > maxT)
         return undefined
+
+      // Save the current t and log
       const prevT = this.t
       const prevLog = this.log
-      const log = [...baseLog]
-      this.log = log
+
+      // Set t to the current time and log to the base log
       this.t = time
-      for (const [offset, duration, fn] of [...baseRuns].reverse()) {
-        const local = time - offset
-        if (local >= 0 && local <= duration)
-          fn(local)
+      this.log = [...baseLog]
+      this.isCompiling = true
+
+      // Run functions
+      // Because t is set to the current time, the function
+      // may add new log entries at the current time.
+      for (const e of [...baseRuns].reverse()) {
+        const local = time - e.start
+        if (local >= 0 && local <= e.duration)
+          e.fn(local)
       }
+      const out = this.log.reduce<T | undefined>((s, e) => (e.t <= time ? e.v : s), undefined)
       this.t = prevT
       this.log = prevLog
-      return log.reduce<T | undefined>((s, [t, v]) => (t <= time ? v : s), undefined)
+      this.isCompiling = false
+      return out
     }
   }
 
-  run = (f: DeclarativeFunction<void>, duration: number): void => {
-    this.runs.push([this.t, duration, f])
+  run = (f: DeclarativeFunction<void>, duration: TNumber): void => {
+    if (!this.isCompiling) {
+      throw new Error('run cannot be called within the function passed to run')
+    }
+    this.runs.push({ start: this.t, duration, fn: f })
+    this.sleep(duration)
   }
 }
+
+export class Tracker<T> extends PureTracker<T> {}
