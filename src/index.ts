@@ -2,7 +2,8 @@
   @module
  */
 
-export type ProceduralFunction = () => Generator<void, void, void>
+export type ProceduralPureFunction = () => void
+export type ProceduralFunction<TNumber extends number> = () => Generator<TNumber, void, void>
 export type DeclarativeFunction<TNumber extends number, T> = (time: TNumber) => T | undefined
 export interface Ref<T> { current: T }
 
@@ -48,11 +49,9 @@ export class PureTracker<TNumber extends number> {
     this.t = (this.t + dt) as TNumber
   }
 
-  compile = (f: ProceduralFunction): DeclarativeFunction<TNumber, void> => {
+  compile = (f: ProceduralPureFunction): DeclarativeFunction<TNumber, void> => {
     this.reset()
-    const g = f()
-    while (!g.next().done)
-      continue
+    f()
     const maxT = Math.max(this.t, ...this.runs.map(e => e.start + e.duration))
     // Copy the log and runs so that they can be safely mutated during execution
     const baseLog = [...this.log]
@@ -94,7 +93,51 @@ export class PureTracker<TNumber extends number> {
     this.runs.push({ start: this.t, duration, fn: f })
     this.sleep(duration)
   }
+
+  all = (fs: ProceduralPureFunction[]): void => {
+    const tStart = this.t
+    let tEnd = tStart
+    for (const f of fs) {
+      this.t = tStart
+      f()
+      tEnd = Math.max(tEnd, this.t) as TNumber
+    }
+    this.t = tEnd
+  }
+
+  any = (fs: ProceduralPureFunction[]): void => {
+    const tStart = this.t
+    let tEnd = tStart
+    const logs = [this.log.map(e => ({ ...e }))]
+    const runs = [this.runs.map(e => ({ ...e }))]
+    for (const f of fs) {
+      this.t = tStart
+      this.log = []
+      this.runs = []
+      f()
+      logs.push(this.log.map(e => ({ ...e })))
+      runs.push(this.runs.map(e => ({ ...e })))
+      tEnd = Math.min(tEnd, this.t) as TNumber
+    }
+    this.t = tEnd
+    this.log = logs.reduce((s, l) => {
+      for (const e of l) {
+        if (e.t <= tEnd)
+          s.push(e)
+      }
+      return s
+    }, [] as LogEntry<TNumber, any>[])
+    this.runs = runs.reduce((s, r) => {
+      for (const e of r) {
+        if (e.start <= tEnd && e.start + e.duration >= tEnd)
+          s.push(e)
+      }
+      return s
+    }, [] as RunEntry<TNumber>[])
+  }
 }
 
-export class Tracker<TNumber extends number> extends PureTracker<TNumber> {
+export class Tracker<TNumber extends number> {
+  useRef = <T>(v: T): Ref<T> => { current: v }
+  sleep = (dt: TNumber): TNumber => dt
 }

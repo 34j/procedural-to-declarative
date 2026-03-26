@@ -35,17 +35,17 @@ describe('index', () => {
   describe('the PureTracker', () => {
     it('', () => {
       const tracker = new Tracker<number>()
-      const fn = function* (): Generator<void, void, void> {
+      const fn = function (): void {
         const x = tracker.useRef(0)
-        yield tracker.sleep(1)
+        tracker.sleep(1)
         x.current = 1
-        yield tracker.sleep(1)
-        yield tracker.run((time: number) => {
+        tracker.sleep(1)
+        tracker.run((time: number) => {
           x.current = 1 + time
         }, 1)
-        yield tracker.sleep(1)
+        tracker.sleep(1)
         x.current = 3
-        yield tracker.sleep(1)
+        tracker.sleep(1)
       }
       const compiled = tracker.compile(fn)
       const eps = 1e-5
