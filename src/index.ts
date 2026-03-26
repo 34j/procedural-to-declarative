@@ -3,26 +3,41 @@
  */
 
 export type ProceduralFunction = () => Generator<void, void, void>
-export type DeclarativeFunction<S> = (time: number) => S | undefined
-export interface Ref<S> { current: S }
+export type DeclarativeFunction<T> = (time: number) => T | undefined
+export interface Ref<T> { current: T }
+interface LogEntry<TNumber extends number, TValue> {
+  t: TNumber
+  v: TValue
+}
+interface RunEntry<TNumber extends number, TFn extends DeclarativeFunction<void>> {
+  start: TNumber
+  duration: TNumber
+  fn: TFn
+}
 
-export class Tracker<S = unknown> {
+export class PureTracker<TNumber extends number> {
   protected t = 0
-  protected log: [number, S][] = []
-  protected runs: [number, number, DeclarativeFunction<void>][] = []
+  protected log: LogEntry<TNumber, any>[] = []
+  protected runs: RunEntry<TNumber, DeclarativeFunction<void>>[] = []
 
-  useRef = (v: S): Ref<S> => {
-    let cur = v
-    const ref = {} as Ref<S>
+  reset = (): void => {
+    this.t = 0
+    this.log = []
+    this.runs = []
+  }
+
+  useRef = (v: T): Ref<T> => {
+    const ref = {} as Ref<T>
     Object.defineProperty(ref, 'current', {
-      get: () => cur,
-      set: (next: S) => {
-        cur = next
-        this.log.push([this.t, next])
+      get: () => {
+        throw new Error('PureTracker does not support reading from refs during procedural execution')
+      },
+      set: (next: T) => {
+        this.log.push({ t: this.t, v: next})
       },
       enumerable: true,
     })
-    this.log.push([this.t, v])
+    this.log.push({ t: this.t, v })
     return ref
   }
 
@@ -30,11 +45,10 @@ export class Tracker<S = unknown> {
     this.t += dt
   }
 
-  compile = (f: ProceduralFunction): DeclarativeFunction<S> => {
-    this.t = 0
-    this.log = []
-    this.runs = []
-    for (const _ of f()) _
+  compile = (f: ProceduralFunction): DeclarativeFunction<T> => {
+    const g = f()
+    while (!g.next().done)
+      continue
     const maxT = Math.max(this.t, ...this.runs.map(([offset, duration]) => offset + duration))
     const baseLog = [...this.log]
     const baseRuns = [...this.runs]
@@ -53,7 +67,7 @@ export class Tracker<S = unknown> {
       }
       this.t = prevT
       this.log = prevLog
-      return log.reduce<S | undefined>((s, [t, v]) => (t <= time ? v : s), undefined)
+      return log.reduce<T | undefined>((s, [t, v]) => (t <= time ? v : s), undefined)
     }
   }
 
