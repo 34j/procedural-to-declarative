@@ -17,12 +17,99 @@
 
 ---
 
-Compile procedural async state transitions into declarative time functions.
+Compile procedural generator-based state transitions into declarative time functions.
 
 ## Installation
 
 ```bash
 npm install procedural-to-declarative
+```
+
+## Motivation
+
+Video generation using TypeScript is a hot topic. Typically such package requires a function that maps time to state.
+
+```ts
+type DeclarativeFunction<T> = (time: number) => T | undefined
+```
+
+However, it's often more intuitive to write state transitions in a procedural way:
+
+```ts
+const tracker = new Tracker()
+function proc() {
+  const x = tracker.useRef(0)
+  tracker.sleep(1)
+  x.current += 1
+  tracker.sleep(1)
+  x.current += 1
+}
+compile(proc)(0) // 0
+compile(proc)(0.5) // 0
+compile(proc)(1) // 1
+compile(proc)(1.5) // 1
+compile(proc)(2) // 2
+```
+
+However if one would like to parallelize procudual functions, it turns out to be impossible, since the passed function cannot be "blocked" to sort the procedure (inner lines).
+
+```ts
+const tracker = new Tracker()
+function proc() {
+  const x = tracker.useRef(0)
+  tracker.all([
+    (() => {
+      tracker.sleep(1)
+      x.current += 1 // 00:01 (Unable to block here!)
+      tracker.sleep(2)
+      x.current += 2 // 00:03
+    })(),
+    (() => {
+      tracker.sleep(2)
+      x.current *= 2 // 00:02
+    })(),
+  ])
+}
+```
+
+However, if we use `async/await` or `yield` (like `motion-canvas` did), we can "block" the function and sort the procedure.
+
+```ts
+const tracker = new Tracker()
+async function proc() {
+  const x = tracker.useRef(0)
+  await tracker.all([
+    (() => {
+      await tracker.sleep(1) // (1)
+      x.current += 1 // 00:01
+      await tracker.sleep(2) // Blocked until (2) is executed
+      x.current += 2 // 00:03
+    })(),
+    (() => {
+      await tracker.sleep(2) // Blocked until (1) is executed (2)
+      x.current *= 2 // 00:02
+    })(),
+  ])
+}
+```
+
+```ts
+const tracker = new Tracker()
+function* proc() {
+  const x = tracker.useRef(0)
+  yield* tracker.all([
+    (() => {
+      yield tracker.sleep(1) // (1)
+      x.current += 1 // 00:01
+      yield tracker.sleep(2) // Blocked until (2) is executed
+      x.current += 2 // 00:03
+    })(),
+    (() => {
+      yield tracker.sleep(2) // Blocked until (1) is executed (2)
+      x.current *= 2 // 00:02
+    })(),
+  ])
+}
 ```
 
 ## Usage
@@ -31,14 +118,14 @@ npm install procedural-to-declarative
 import { Tracker } from 'procedural-to-declarative'
 
 const tracker = new Tracker<number>()
-async function proc() {
-  const [, setX] = tracker.useState(0)
-  await tracker.sleep(1)
-  setX(1)
-  await tracker.sleep(1)
-  setX(2)
+function* proc() {
+  const x = tracker.useRef(0)
+  tracker.sleep(1)
+  x.current = 1
+  tracker.sleep(1)
+  x.current = 2
 }
-const x = await tracker.compile(proc)
+const x = tracker.compile(proc)
 
 x(0.5) // 0
 x(2.5) // 2
@@ -46,7 +133,7 @@ x(2.5) // 2
 
 ## API
 
-- `useState(initial)`: 現在時刻の初期値を記録し、`setState` を返す
+- `useRef(initial)`: 現在時刻の初期値を記録し、`ref.current` で値を更新する
 - `sleep(dt)`: トラッカー内部時刻を `dt` 進める
 - `compile(proc)`: 手続き関数を `time => state` 関数に変換し、`time` が `0..maxT` 外なら `undefined`
 - `run(fn, duration)`: `DeclarativeFunction<void>` を現在時刻開始で `duration` の間だけ登録する
