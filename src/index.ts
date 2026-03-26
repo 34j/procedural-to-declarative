@@ -2,28 +2,39 @@
   @module
  */
 
-export type ProceduralFunction<T = void> = () => T | Promise<T>
+export type ProceduralFunction = () => Generator<void, void, void>
 export type DeclarativeFunction<S> = (time: number) => S | undefined
+export interface Ref<S> { current: S }
 
 export class Tracker<S = unknown> {
   protected t = 0
   protected log: [number, S][] = []
   protected runs: [number, number, DeclarativeFunction<void>][] = []
 
-  useState = (v: S): [S, (next: S) => void] => {
+  useRef = (v: S): Ref<S> => {
+    let cur = v
+    const ref = {} as Ref<S>
+    Object.defineProperty(ref, 'current', {
+      get: () => cur,
+      set: (next: S) => {
+        cur = next
+        this.log.push([this.t, next])
+      },
+      enumerable: true,
+    })
     this.log.push([this.t, v])
-    return [v, next => this.log.push([this.t, next])]
+    return ref
   }
 
-  sleep = async (dt: number): Promise<void> => {
+  sleep = (dt: number): void => {
     this.t += dt
   }
 
-  compile = async (f: ProceduralFunction<void>): Promise<DeclarativeFunction<S>> => {
+  compile = (f: ProceduralFunction): DeclarativeFunction<S> => {
     this.t = 0
     this.log = []
     this.runs = []
-    await f()
+    for (const _ of f()) _
     const maxT = Math.max(this.t, ...this.runs.map(([offset, duration]) => offset + duration))
     const baseLog = [...this.log]
     const baseRuns = [...this.runs]
@@ -46,7 +57,7 @@ export class Tracker<S = unknown> {
     }
   }
 
-  run = async (f: DeclarativeFunction<void>, duration: number): Promise<void> => {
+  run = (f: DeclarativeFunction<void>, duration: number): void => {
     this.runs.push([this.t, duration, f])
   }
 }

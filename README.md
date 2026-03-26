@@ -122,13 +122,24 @@ function* proc() {
   const x = tracker.useRef(0)
   tracker.sleep(1)
   x.current = 1
+  yield tracker.run((time) => {
+    x.current = 1 + time
+  }, 1)
   tracker.sleep(1)
-  x.current = 2
+  x.current += 1
+  tracker.sleep(1)
 }
 const x = tracker.compile(proc)
-
-x(0.5) // 0
-x(2.5) // 2
+const eps = 1e-6
+console.log(x(-eps)) // undefined
+console.log(x(0)) // 0
+console.log(x(1 - eps)) // 0
+console.log(x(1)) // 1
+console.log(x(1.5)) // 1.5
+console.log(x(2)) // 2
+console.log(x(3)) // 3
+console.log(x(4)) // 3
+console.log(x(4 + eps)) // undefined
 ```
 
 ## API
