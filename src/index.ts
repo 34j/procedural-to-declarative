@@ -79,7 +79,7 @@ export class PureTracker<TNumber extends number> {
         if (local >= 0 && local <= e.duration)
           e.fn(local)
       }
-      const out = this.log.reduce<T | undefined>((s, e) => (e.t <= time ? e.v : s), undefined)
+      const out = this.log.reduce<any>((s, e) => (e.t <= time ? e.v : s), undefined)
       this.t = prevT
       this.log = prevLog
       this.isCompiling = false
