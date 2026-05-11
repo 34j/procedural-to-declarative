@@ -17,7 +17,7 @@
 
 ---
 
-Compile procedural generator-based state transitions into declarative time functions.
+Compile procedural state transitions (do, wait, set, wait, ...) into declarative time-to-state functions (t -> do, set).
 
 ## Installation
 
@@ -112,6 +112,8 @@ function* proc() {
 }
 ```
 
+Our package uses the second approach.
+
 ## Usage
 
 ```ts
@@ -140,6 +142,29 @@ console.log(x(2)) // 2
 console.log(x(3)) // 3
 console.log(x(4)) // 3
 console.log(x(4 + eps)) // undefined
+```
+
+### Advanced Usage
+
+```ts
+import { Tracker } from 'procedural-to-declarative'
+
+const tracker = new Tracker<number>()
+function* proc() {
+  const x = tracker.useRef(0)
+  const y = tracker.useRef(0)
+  task1 = tracker.run((time) => {
+    x.current = time
+  }, 2)
+  task2 = tracker.run(() => {
+    while (true) {
+      y.current += x
+      yield tracker.sleep(1)
+    }
+  })
+  task1.wait()
+  task2.cancel()
+}
 ```
 
 ## API
