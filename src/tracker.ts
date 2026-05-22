@@ -43,7 +43,7 @@ export class Tracker<TNumber extends number> {
         nextState.waitTime = iteratorResult.value
       }
     }
-    this.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.fn(time - s.startTime))
+    this.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.fn((time - s.startTime) as TNumber))
   }
 
   runDeclarative = (f: DeclarativeFunction<TNumber, void>, duration: TNumber): void => {
