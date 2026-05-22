@@ -39,7 +39,7 @@ export class Tracker<TNumber extends number> {
         this.proceduralStates = this.proceduralStates.filter(s => s !== nextState)
       }
       else {
-        this.proceduralStates = this.proceduralStates.map(s => s === nextState ? { ...s, waitTime: s.waitTime + iteratorResult.value } : s)
+        this.proceduralStates = this.proceduralStates.map(s => s === nextState ? { ...s, waitTime: (s.waitTime + iteratorResult.value) as TNumber } : s)
         nextState.waitTime = iteratorResult.value
       }
     }
