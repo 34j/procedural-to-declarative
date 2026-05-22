@@ -155,7 +155,7 @@ function* proc() {
   const y = tracker.useRef(0)
   task1 = tracker.run((time) => {
     x.current = time
-  }, 2)
+  })
   task2 = tracker.run(() => {
     while (true) {
       y.current += x
@@ -163,16 +163,9 @@ function* proc() {
     }
   })
   task1.wait()
-  task2.cancel()
+  task2.suspend()
 }
 ```
-
-## API
-
-- `useRef(initial)`: 現在時刻の初期値を記録し、`ref.current` で値を更新する
-- `sleep(dt)`: トラッカー内部時刻を `dt` 進める
-- `compile(proc)`: 手続き関数を `time => state` 関数に変換し、`time` が `0..maxT` 外なら `undefined`
-- `run(fn, duration)`: `DeclarativeFunction<void>` を現在時刻開始で `duration` の間だけ登録する
 
 [build-img]:https://github.com/34j/procedural-to-declarative/actions/workflows/release.yml/badge.svg
 [build-url]:https://github.com/34j/procedural-to-declarative/actions/workflows/release.yml
