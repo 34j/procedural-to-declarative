@@ -83,9 +83,9 @@ export class PureTracker<TNumber extends number> {
   }
 
   run = (f: DeclarativeFunction<TNumber, void>, duration: TNumber): void => {
-    if (!this.isCompiling) {
-      throw new Error('run cannot be called within the function passed to run')
-    }
+    // if (!this.isCompiling) {
+    //   throw new Error('run cannot be called within the function passed to run')
+    // }
     this.runs.push({ start: this.t, duration, fn: f })
     this.sleep(duration)
   }

@@ -31,19 +31,25 @@ export class Tracker<TNumber extends number> {
   declarativeStates: DeclarativeState<TNumber>[] = []
   currentTime: TNumber = 0 as TNumber
   declarativeCall = (time: TNumber) => {
-    // Find the generator with least wait time
+    // Call next() of the generator with least wait time
     while (this.proceduralStates.length > 0 && this.currentTime <= time) {
       const nextState = this.proceduralStates.reduce((prev, curr) => prev.waitTime < curr.waitTime ? prev : curr)
+      this.proceduralStates = this.proceduralStates.filter(s => s !== nextState)
+      const nextWaitTime = nextState.waitTime
       const iteratorResult = nextState.gen.next()
+      this.proceduralStates = this.proceduralStates.map(s => s === nextState ? { ...s, waitTime: (s.waitTime - nextWaitTime) as TNumber } : s)
+
+      // If the generator is done, simply remove it
       if (iteratorResult.done) {
-        this.proceduralStates = this.proceduralStates.filter(s => s !== nextState)
+        ;
       }
+      // Otherwise, update the wait time of the generator to the new value returned by next()
       else {
-        this.proceduralStates = this.proceduralStates.map(s => s === nextState ? { ...s, waitTime: (s.waitTime + iteratorResult.value) as TNumber } : s)
-        nextState.waitTime = iteratorResult.value
+        this.proceduralStates.push({ gen: nextState.gen, waitTime: iteratorResult.value })
       }
     }
     this.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.fn((time - s.startTime) as TNumber))
+    this.currentTime = 0 as TNumber
   }
 
   runDeclarative = (f: DeclarativeFunction<TNumber, void>, duration: TNumber): void => {
