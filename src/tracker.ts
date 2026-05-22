@@ -1,4 +1,3 @@
-
 /**
  * Procedural
  */
@@ -14,7 +13,7 @@ export type DeclarativeFunction<TNumber extends number, T> = (time: TNumber) => 
 export interface Ref<T> { current: T }
 export interface Task
 {
-   cancel: () => void
+  cancel: () => void
 }
 export interface ProceduralState<TNumber extends number> {
   gen: Generator<TNumber, void, void>
@@ -31,23 +30,26 @@ export class Tracker<TNumber extends number> {
   proceduralStates: ProceduralState<TNumber>[] = []
   declarativeStates: DeclarativeState<TNumber>[] = []
   currentTime: TNumber = 0 as TNumber
-  const declarativeCall = (time: TNumber) => {
+  declarativeCall = (time: TNumber) => {
     // Find the generator with least wait time
     while (this.proceduralStates.length > 0 && this.currentTime <= time) {
       const nextState = this.proceduralStates.reduce((prev, curr) => prev.waitTime < curr.waitTime ? prev : curr)
       const iteratorResult = nextState.gen.next()
       if (iteratorResult.done) {
         this.proceduralStates = this.proceduralStates.filter(s => s !== nextState)
-      } else {
+      }
+      else {
         this.proceduralStates = this.proceduralStates.map(s => s === nextState ? { ...s, waitTime: s.waitTime + iteratorResult.value } : s)
         nextState.waitTime = iteratorResult.value
       }
     }
     this.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.fn(time - s.startTime))
   }
+
   runDeclarative = (f: DeclarativeFunction<TNumber, void>, duration: TNumber): void => {
     this.declarativeStates.push({ fn: f, startTime: this.currentTime, duration })
   }
+
   runProcedural = (f: ProceduralFunction<TNumber>): void => {
     this.proceduralStates.push({ gen: f(), waitTime: 0 as TNumber })
   }
