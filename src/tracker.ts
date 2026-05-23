@@ -180,7 +180,7 @@ export function any<TNumber extends number>(tasks: Task<Wait<TNumber>>[]): Task<
       const duration = Math.min(...waits.filter(w => w.duration !== undefined).map(w => w.duration!)) as TNumber
       return {
         dependencies: dependencies.size > 0 ? dependencies : undefined,
-        duration: duration === Infinity ? undefined : duration,
+        duration: duration !== Infinity ? duration : undefined,
       }
     },
   }

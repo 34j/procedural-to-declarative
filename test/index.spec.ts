@@ -72,6 +72,7 @@ describe('index', () => {
           x.current = 2
         }
         yield any([runProcedural(track, g()), runProcedural(track, h())]).wait()
+        x.current = 3
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)
@@ -84,11 +85,13 @@ describe('index', () => {
       compiled(1 - eps)
       expect(x.current).toBe(0)
       compiled(1)
-      expect(x.current).toBe(1)
+      expect(x.current).toBe(3)
+      compiled(2 - eps)
+      expect(x.current).toBe(3)
       compiled(2)
-      expect(x.current).toBe(1)
+      expect(x.current).toBe(2)
       compiled(5)
-      expect(x.current).toBe(1)
+      expect(x.current).toBe(2)
     })
 
     it('should support README example', () => {

@@ -483,7 +483,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
         "key": {
           "current": 2,
         },
-        "value": 1,
+        "value": 3,
       },
     ],
     "time": 1,
