@@ -24,11 +24,13 @@ export interface ProceduralState<TNumber extends number> {
   f: ProceduralFunction<Wait<TNumber>>
   totalCallsCount: number
   wait: Wait<TNumber>
+  suspended: boolean
 }
 export interface DeclarativeState<TNumber extends number> {
   f: DeclarativeFunction<TNumber, void>
-  startTime: TNumber
+  progress: TNumber
   duration: TNumber
+  suspended: boolean
 }
 
 export interface Track<TNumber extends number> {
@@ -84,11 +86,15 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
 
     // Subtract the wait time of the state from all other states
     const nextWaitTime = nextState.wait.duration!
-    track.proceduralStates = track.proceduralStates.map((s) => {
-      if (s.wait.duration === undefined) {
-        return s
+    track.proceduralStates.forEach((s) => {
+      if (s.wait.duration !== undefined && !s.suspended) {
+        s.wait.duration = (s.wait.duration - nextWaitTime) as TNumber
       }
-      return { ...s, wait: { duration: (s.wait.duration! - nextWaitTime) as TNumber } }
+    })
+    track.declarativeStates.forEach((s) => {
+      if (!s.suspended) {
+        s.progress = (s.progress + nextWaitTime) as TNumber
+      }
     })
 
     // Time must be updated before calling next()
@@ -97,16 +103,12 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     // If the generator is done, remove it
     const iteratorResult = nextState.f.next()
     if (iteratorResult.done) {
-      track.proceduralStates = track.proceduralStates.map(
-        (s) => {
-          if (s.wait.dependencies === undefined || !s.wait.dependencies.has(nextState.f)) {
-            return s
-          }
-          else {
-            return { ...s, wait: { duration: 0 as TNumber } }
-          }
-        },
-      )
+      track.proceduralStates.forEach((s) => {
+        if (s.wait.dependencies !== undefined && s.wait.dependencies.has(nextState.f)) {
+          s.wait.duration = 0 as TNumber
+          delete s.wait.dependencies
+        }
+      })
     }
     // Otherwise, update the wait time of the generator to the new value returned by next()
     else {
@@ -114,7 +116,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     }
 
     // Remove declarative states that have ended
-    track.declarativeStates = track.declarativeStates.filter(s => (track.time < s.startTime + s.duration))
+    track.declarativeStates = track.declarativeStates.filter(s => s.progress < s.duration)
 
     // Save the fixed track (copy)
     fixedTracks.push({
@@ -127,7 +129,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
 
   // Run remaining declarative states at the end
   // for the case where time is not Infinity
-  track.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.f((time - s.startTime) as TNumber))
+  track.declarativeStates.filter(s => s.progress < s.duration).forEach(s => s.f(s.progress))
   return fixedTracks
 }
 
@@ -144,17 +146,18 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixed
       ref.current = fixedTrack.refValues.get(ref)
     }
   })
-  fixedTrack.declarativeStates.filter(s => (time >= s.startTime) && (time < s.startTime + s.duration)).forEach(s => s.f((time - s.startTime) as TNumber))
+  fixedTrack.declarativeStates.filter(s => s.progress < s.duration).forEach(s => s.f(s.progress))
 }
 
 export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<Wait<TNumber>> {
-  const state = { f, startTime: track.time, duration }
+  const state = { f, progress: 0 as TNumber, duration, suspended: false }
   track.declarativeStates.push(state)
   return {
     suspend: () => {
-      track.declarativeStates = track.declarativeStates.filter(s => s !== state)
+      state.suspended = true
     },
     resume: () => {
+      state.suspended = false
     },
     wait: () => sleep(duration),
   }
@@ -162,13 +165,14 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
 
 export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: ProceduralFunction<Wait<TNumber>>): Task<Wait<TNumber>> {
   // Run immediately
-  const state = { f, wait: { duration: 0 as TNumber }, totalCallsCount: 0 }
+  const state = { f, wait: { duration: 0 as TNumber }, totalCallsCount: 0, suspended: false }
   track.proceduralStates.push(state)
   return {
     suspend: () => {
-      track.proceduralStates = track.proceduralStates.filter(s => s !== state)
+      state.suspended = true
     },
     resume: () => {
+      state.suspended = false
     },
     wait: () => ({
       dependencies: new Set([f]),
