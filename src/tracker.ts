@@ -50,6 +50,15 @@ export function useRef<T>(track: Track<any>, v: T): Ref<T> {
   return ref
 }
 
+export function createTrack<TNumber extends number>(): Track<TNumber> {
+  return {
+    time: 0 as TNumber,
+    refs: [],
+    proceduralStates: [],
+    declarativeStates: [],
+  }
+}
+
 export const sleep = <TNumber extends number>(dt: TNumber): Wait<TNumber> => ({ duration: dt })
 
 export function compile<TNumber extends number>(track: Track<TNumber>, time: TNumber = Infinity as TNumber): FixedTrack<TNumber>[] {

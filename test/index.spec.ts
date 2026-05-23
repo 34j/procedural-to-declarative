@@ -1,6 +1,6 @@
 import type { Track } from '../src/tracker'
 import { describe, expect, it } from 'vitest'
-import { all, any, compile, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/tracker'
+import { all, any, compile, runDeclarative, runProcedural, sleep, useCompiled, useRef, createTrack } from '../src/tracker'
 
 function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<typeof compile<TNumber>>) {
   return fixedTracks.map(fixedTrack => ({
@@ -16,6 +16,20 @@ function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<ty
 
 describe('index', () => {
   describe('tracker', () => {
+    it('should raise when dead lock', () => {
+      const track = createTrack()
+      let taskF: ReturnType<typeof runProcedural>
+      let taskG: ReturnType<typeof runProcedural>
+      function* f() {
+        yield taskG.wait()
+      }
+      function* g() {
+        yield taskF.wait()
+      }
+      taskF = runProcedural(track, f())
+      taskG = runProcedural(track, g())
+      expect(() => compile(track)).toThrow()
+    })
     it('should correctly handle all', () => {
       const track: Track<number> = {
         time: 0,
