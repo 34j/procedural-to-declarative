@@ -1,5 +1,122 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`index > tracker > should cancel and resume procedural 1`] = `
+[
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 0,
+        "wait": {
+          "duration": 0,
+        },
+      },
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 0.5,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 1,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 0.5,
+        },
+      },
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 1,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 1,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 0.5,
+        },
+      },
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 2,
+        "wait": {
+          "duration": 0.5,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 1,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 1,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "suspended": true,
+        "totalCallsCount": 2,
+        "wait": {
+          "duration": 0.5,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 1,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 1.5,
+  },
+]
+`;
+
 exports[`index > tracker > should correctly handle all 1`] = `
 [
   {

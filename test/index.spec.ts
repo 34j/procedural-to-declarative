@@ -16,6 +16,39 @@ function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<ty
 
 describe('index', () => {
   describe('tracker', () => {
+    it('should cancel and resume procedural', () => {
+      const track = createTrack()
+      const x = useRef(track, 0)
+      function* f() {
+        const taskG = runProcedural(track, g())
+        yield sleep(1.5)
+        taskG.suspend()
+      }
+      function* g() {
+        yield sleep(1)
+        x.current = 1
+        yield sleep(1)
+        x.current = 2
+      }
+      runProcedural(track, f())
+      const fixedTracks = compile(track)
+      const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
+      expect(visibleFixedTracks).toMatchSnapshot()
+      const compiled = (time: number) => useCompiled(track, fixedTracks, time)
+      const eps = 1e-5
+      compiled(0)
+      expect(x.current).toBe(0)
+      compiled(1 - eps)
+      expect(x.current).toBe(0)
+      compiled(1)
+      expect(x.current).toBe(1)
+      compiled(2 - eps)
+      expect(x.current).toBe(1)
+      compiled(2)
+      expect(x.current).toBe(1)
+      compiled(3)
+      expect(x.current).toBe(1)
+    })
     it('should raise when dead lock', () => {
       const track = createTrack()
       let taskF: ReturnType<typeof runProcedural>

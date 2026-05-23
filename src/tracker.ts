@@ -68,9 +68,9 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
   const fixedTracks: FixedTrack<TNumber>[] = []
   track.time = 0 as TNumber
   // Call next() of the generator with least wait time
-  while (track.proceduralStates.length > 0 && track.time <= time) {
+  while (track.proceduralStates.filter(s => !s.suspended).length > 0 && track.time <= time) {
     // Next state must be the one with duration defined
-    const filteredStates = track.proceduralStates.filter(s => s.wait.duration !== undefined)
+    const filteredStates = track.proceduralStates.filter(s => s.wait.duration !== undefined && !s.suspended)
     if (filteredStates.length === 0) {
       throw new Error('No procedural state with dependencies not specified and wait time specified found.')
     }
@@ -112,7 +112,10 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     }
     // Otherwise, update the wait time of the generator to the new value returned by next()
     else {
-      track.proceduralStates.push({ ...nextState, wait: iteratorResult.value, totalCallsCount: nextState.totalCallsCount + 1 })
+      //track.proceduralStates.push({ ...nextState, wait: iteratorResult.value, totalCallsCount: nextState.totalCallsCount + 1 })
+      nextState.wait = iteratorResult.value
+      nextState.totalCallsCount += 1
+      track.proceduralStates.push(nextState)
     }
 
     // Remove declarative states that have ended
