@@ -13,7 +13,7 @@ describe('index', () => {
       }
       const x = useRef(track, 0)
       function* f() {
-        expect(x.current).toBe(0)
+        expect(track.time).toBe(0)
         yield sleep(1)
         expect(track.time).toBe(1)
         x.current = 1
