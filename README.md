@@ -167,6 +167,80 @@ function* proc() {
 }
 ```
 
+## Comparison
+
+- From our observation, none of the existing libraries support "waiting" while video / audio is playing.
+- The comparison on the way of writing "animation" using static images is as follows:
+
+### Motion Canvas / Revideo
+
+```tsx
+import { Circle, makeScene2D, } from '@revideo/2d'
+import { all, createRef, makeProject, } from '@revideo/core'
+
+/**
+ * The Revideo scene
+ */
+const scene = makeScene2D('scene', function* (view) {
+  const circle = createRef<Circle>()
+  view.add(
+    <Circle
+      ref={circle}
+      fill="lightseagreen"
+    />
+  )
+  yield* all(
+    circle().width(0).width(100, 1),
+    circle().height(0).height(100, 2),
+  )
+})
+
+/**
+ * The final revideo project
+ */
+export default makeProject({
+  scenes: [scene],
+  settings: {
+    // Example settings:
+    shared: {
+      size: { x: 100, y: 100 },
+    },
+  },
+})
+```
+
+### [FrameScript](https://github.com/frame-script/FrameScript)
+
+```tsx
+import { useAnimation, useVariable } from '../src/lib/animation'
+import { BEZIER_SMOOTH } from '../src/lib/animation/functions'
+import { seconds } from '../src/lib/frame'
+import { FillFrame } from '../src/lib/layout/fill-frame'
+
+const x = useVariable(0)
+const y = useVariable(0)
+
+function scene() {
+  useAnimation(async (ctx) => {
+    await ctx.parallel([
+      ctx.move(x).to(100, seconds(1), BEZIER_SMOOTH),
+      ctx.move(y).to(100, seconds(2), BEZIER_SMOOTH)
+    ])
+  })
+
+  return (
+    <FillFrame style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        style={{
+          width: x.use(),
+          height: y.use(),
+        }}
+      />
+    </FillFrame>
+  )
+}
+```
+
 [build-img]:https://github.com/34j/procedural-to-declarative/actions/workflows/release.yml/badge.svg
 [build-url]:https://github.com/34j/procedural-to-declarative/actions/workflows/release.yml
 [downloads-img]:https://img.shields.io/npm/dt/procedural-to-declarative
