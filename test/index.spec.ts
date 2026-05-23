@@ -6,17 +6,17 @@ describe('index', () => {
   describe('the Tracker', () => {
     it('', () => {
       const tracker = new Tracker<number>()
-      const fn = function* (): Generator<number, void, void> {
+      const fn = function* () {
         const x = tracker.useRef(0)
-        yield 1
+        yield tracker.sleep(1)
         x.current = 1
-        yield 1
+        yield tracker.sleep(1)
         tracker.runDeclarative((time: number) => {
           x.current = 1 + time
         }, 1)
-        yield 1
+        yield tracker.sleep(1)
         x.current += 1
-        yield 1
+        yield tracker.sleep(1)
       }
       tracker.runProcedural(fn)
       const compiled = tracker.declarativeCall

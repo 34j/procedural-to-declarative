@@ -1,31 +1,31 @@
 /**
  * Procedural
  */
-export interface Wait<TNumber extends number, TDuration extends TNumber | undefined, TType extends 'any' | 'all'> {
-  dependencies: Set<ProceduralFunction<Wait<TNumber, TDuration, TType>>>
-  duration: TDuration
+export interface Wait<TNumber extends number, TType extends 'any' | 'all'> {
+  dependencies: Set<ProceduralFunction<Wait<TNumber, TType>>>
+  duration: TNumber | undefined
   type: TType
 }
-export type WaitConstant<TNumber extends number> = Wait<TNumber, TNumber, 'any'>
-export type WaitAny<TNumber extends number, TDuration extends TNumber | undefined> = Wait<TNumber, TDuration, 'any'>
-export type WaitAll<TNumber extends number, TDuration extends TNumber | undefined> = Wait<TNumber, TDuration, 'all'>
+export type WaitConstant<TNumber extends number> = Wait<TNumber, 'any'>
+export type WaitAny<TNumber extends number> = Wait<TNumber, 'any'>
+export type WaitAll<TNumber extends number> = Wait<TNumber, 'all'>
 /**
  * Procedural function. useRef().current can be read and written.
  */
-export type ProceduralFunction<TWait extends Wait<any, any, any>> = IterableIterator<TWait>
+export type ProceduralFunction<TWait extends Wait<any, any>> = IterableIterator<TWait>
 /**
  * Declarative function. useRef().current is write-only.
  */
 export type DeclarativeFunction<TNumber extends number, T> = (time: TNumber) => T | undefined
 export interface Ref<T> { current: T }
-export interface Task<TWait extends Wait<any, any, any>>
+export interface Task<TWait extends Wait<any, any>>
 {
   wait: () => TWait
   cancel: () => void
 }
 export interface ProceduralState<TNumber extends number> {
-  f: ProceduralFunction<Wait<TNumber, any, any>>
-  wait: Wait<TNumber, any, any>
+  f: ProceduralFunction<Wait<TNumber, any>>
+  wait: Wait<TNumber, any>
 }
 export interface DeclarativeState<TNumber extends number> {
   f: DeclarativeFunction<TNumber, void>
@@ -34,7 +34,7 @@ export interface DeclarativeState<TNumber extends number> {
 }
 export class Tracker<TNumber extends number> {
   useRef = <T>(v: T): Ref<T> => { return { current: v } }
-  sleep = (dt: TNumber): WaitConstant<TNumber> => ({ dependencies: new Set(), duration: dt, type: 'any' })
+  sleep = (dt: TNumber): WaitConstant<TNumber> => ({ dependencies: new Set<ProceduralFunction<Wait<TNumber, 'any'>>>(), duration: dt, type: 'any' })
   proceduralStates: ProceduralState<TNumber>[] = []
   declarativeStates: DeclarativeState<TNumber>[] = []
   currentTime: TNumber = 0 as TNumber
@@ -58,7 +58,6 @@ export class Tracker<TNumber extends number> {
       // If the generator is done, remove it
       if (iteratorResult.done) {
         // any -> finish
-        this.proceduralStates.filter()
       }
       // Otherwise, update the wait time of the generator to the new value returned by next()
       else {
@@ -79,26 +78,26 @@ export class Tracker<TNumber extends number> {
     }
   }
 
-  runProcedural = (f: ProceduralFunction<Wait<TNumber, any, any>>): Task<WaitAny<TNumber, undefined>> => {
+  runProcedural = (f: ProceduralFunction<Wait<TNumber, any>>): Task<WaitAny<TNumber>> => {
     this.proceduralStates.push({ f, wait: { dependencies: new Set(), duration: undefined, type: 'any' } })
     return {
       cancel: () => {
         this.proceduralStates = this.proceduralStates.filter(s => s.f !== f)
       },
       wait: () => ({
-        dependencies: new Set(f),
+        dependencies: new Set([f]),
         type: 'any',
         duration: undefined,
       }),
     }
   }
 
-  all = (tasks: Task<Wait<TNumber, any, any>>[]): Task<WaitAll<TNumber, any>> => {
+  all = (tasks: Task<Wait<TNumber, any>>[]): Task<WaitAll<TNumber>> => {
     return {
       cancel: () => tasks.forEach(t => t.cancel()),
       wait: () => {
         const waits = tasks.map(t => t.wait())
-        const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<TNumber>>())
+        const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
         const duration = waits.reduce((max, w) => w.duration === undefined ? max : Math.max(max, w.duration) as TNumber, 0 as TNumber)
         return {
           dependencies,
@@ -109,12 +108,12 @@ export class Tracker<TNumber extends number> {
     }
   }
 
-  any = (tasks: Task<Wait<TNumber, any, any>>[]): Task<WaitAny<TNumber, any>> => {
+  any = (tasks: Task<Wait<TNumber, any>>[]): Task<WaitAny<TNumber>> => {
     return {
       cancel: () => tasks.forEach(t => t.cancel()),
       wait: () => {
         const waits = tasks.map(t => t.wait())
-        const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<TNumber>>())
+        const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
         const duration = waits.reduce((min, w) => w.duration === undefined ? min : Math.min(min, w.duration) as TNumber, Infinity as TNumber)
         return {
           dependencies,
