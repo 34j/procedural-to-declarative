@@ -1,25 +1,25 @@
 import { describe, expect, it } from 'vitest'
 import { PureTracker } from '../src/pureTracker'
-import { Tracker } from '../src/tracker'
+import { Track, sleep, useRef, runDeclarative, runProcedural } from '../src/tracker'
 
 describe('index', () => {
   describe('the Tracker', () => {
     it('', () => {
-      const tracker = new Tracker<number>()
-      const x = tracker.useRef(0)
+      const track = {} as Track<number>
+      const x = useRef(track, 0)
       function* f() {
-        yield tracker.sleep(1)
+        yield sleep(1)
         x.current = 1
-        yield tracker.sleep(1)
-        tracker.runDeclarative((time: number) => {
+        yield sleep(1)
+        runDeclarative(track, (time: number) => {
           x.current = 1 + time
         }, 1)
-        yield tracker.sleep(1)
+        yield sleep(1)
         x.current += 1
-        yield tracker.sleep(1)
+        yield sleep(1)
       }
-      tracker.runProcedural(f())
-      const compiled = tracker.declarativeCall
+      runProcedural(track, f())
+      const compiled = declarativeCall
       const eps = 1e-5
       compiled(0)
       expect(x.current).toBe(0)
@@ -50,15 +50,15 @@ describe('index', () => {
       const tracker = new PureTracker<number>()
       const fn = function (): void {
         const x = tracker.useRef(0)
-        tracker.sleep(1)
+        sleep(1)
         x.current = 1
-        tracker.sleep(1)
+        sleep(1)
         tracker.run((time: number) => {
           x.current = 1 + time
         }, 1)
-        tracker.sleep(1)
+        sleep(1)
         x.current = 3
-        tracker.sleep(1)
+        sleep(1)
       }
       const compiled = tracker.compile(fn)
       const eps = 1e-5
