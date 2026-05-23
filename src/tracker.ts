@@ -1,7 +1,7 @@
 /**
  * Procedural
  */
-export interface Wait<TNumber extends number, TDuration extends TNumber | undefined,TType extends 'any' | 'all'> {
+export interface Wait<TNumber extends number, TDuration extends TNumber | undefined, TType extends 'any' | 'all'> {
   dependencies: Set<ProceduralFunction<TNumber>>
   duration: TDuration
   type: TType
@@ -85,6 +85,35 @@ export class Tracker<TNumber extends number> {
     }
   }
 
-  all = (tasks: Task<Wait<TNumber>>[]): DependencyWaitAll<TNumber> => {
+  all = (tasks: Task<Wait<TNumber, any, any>>[]): Task<WaitAll<TNumber, any>> => {
+    return {
+      cancel: () => tasks.forEach(t => t.cancel()),
+      wait: () => {
+        const waits = tasks.map(t => t.wait())
+        const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<TNumber>>())
+        const duration = waits.reduce((max, w) => w.duration === undefined ? max : Math.max(max, w.duration) as TNumber, 0 as TNumber)
+        return {
+          dependencies,
+          type: 'all',
+          duration,
+        }
+      },
+    }
+  }
 
+  any = (tasks: Task<Wait<TNumber, any, any>>[]): Task<WaitAny<TNumber, any>> => {
+    return {
+      cancel: () => tasks.forEach(t => t.cancel()),
+      wait: () => {
+        const waits = tasks.map(t => t.wait())
+        const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<TNumber>>())
+        const duration = waits.reduce((min, w) => w.duration === undefined ? min : Math.min(min, w.duration) as TNumber, Infinity as TNumber)
+        return {
+          dependencies,
+          type: 'any',
+          duration: duration === Infinity ? undefined : duration,
+        }
+      },
+    }
+  }
 }
