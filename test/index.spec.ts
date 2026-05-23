@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Tracker } from '../src/tracker'
 import { PureTracker } from '../src/pureTracker'
+import { Tracker } from '../src/tracker'
 
 describe('index', () => {
   describe('the Tracker', () => {
