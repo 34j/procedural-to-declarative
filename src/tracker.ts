@@ -41,16 +41,20 @@ export class Tracker<TNumber extends number> {
   declarativeCall = (time: TNumber) => {
     // Call next() of the generator with least wait time
     while (this.proceduralStates.length > 0 && this.currentTime <= time) {
-      const leastWaitState = this.proceduralStates.reduce((least, s) => s.wait.duration < least.wait.duration ? s : least)
-      if (leastWaitState.wait.duration === Infinity) {
+      const filteredStates = this.proceduralStates.filter(s => (s.wait.type === 'any') || (s.wait.type === 'all' && s.wait.dependencies.size === 0))
+      if (filteredStates.length === 0) {
+        throw new Error('No procedural state any or all with no dependencies found.')
+      }
+      const nextState = filteredStates.reduce((least, s) => s.wait.duration < least.wait.duration ? s : least)
+      if (nextState.wait.duration === Infinity) {
         throw new Error('No procedural state with fixed wait time found.')
       }
       // Remove the least wait state
-      this.proceduralStates = this.proceduralStates.filter(s => s !== leastWaitState)
+      this.proceduralStates = this.proceduralStates.filter(s => s !== nextState)
 
       // Subtract the wait time
-      const nextWaitTime = leastWaitState.wait.duration!
-      const iteratorResult = leastWaitState.f.next()
+      const nextWaitTime = nextState.wait.duration!
+      const iteratorResult = nextState.f.next()
       this.proceduralStates = this.proceduralStates.map((s) => {
         return { f: s.f, wait: { dependencies: s.wait.dependencies, duration: (s.wait.duration! - nextWaitTime) as TNumber, type: s.wait.type } }
       })
@@ -59,7 +63,7 @@ export class Tracker<TNumber extends number> {
       if (iteratorResult.done) {
         this.proceduralStates = this.proceduralStates.map(
           (s) => {
-            if (!s.wait.dependencies.has(leastWaitState.f)) {
+            if (!s.wait.dependencies.has(nextState.f)) {
               return s
             }
             // any -> remove all
@@ -68,7 +72,7 @@ export class Tracker<TNumber extends number> {
             }
             // all -> remove only f
             else if (s.wait.type === 'all') {
-              return { f: s.f, wait: { dependencies: new Set([...s.wait.dependencies].filter(d => d !== leastWaitState.f)), duration: s.wait.duration, type: 'all' } }
+              return { f: s.f, wait: { dependencies: new Set([...s.wait.dependencies].filter(d => d !== nextState.f)), duration: s.wait.duration, type: 'all' } }
             }
             return s
           },
@@ -76,7 +80,7 @@ export class Tracker<TNumber extends number> {
       }
       // Otherwise, update the wait time of the generator to the new value returned by next()
       else {
-        this.proceduralStates.push({ f: leastWaitState.f, wait: iteratorResult.value })
+        this.proceduralStates.push({ f: nextState.f, wait: iteratorResult.value })
       }
     }
     this.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.f((time - s.startTime) as TNumber))
