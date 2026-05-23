@@ -2,8 +2,8 @@
  * Procedural
  */
 export interface Wait<TNumber extends number> {
-  dependencies: Set<ProceduralFunction<Wait<TNumber>>> | undefined
-  duration: TNumber | undefined
+  dependencies?: Set<ProceduralFunction<Wait<TNumber>>> | undefined
+  duration?: TNumber | undefined
 }
 /**
  * Procedural function. useRef().current can be read and written.
@@ -50,7 +50,7 @@ export function useRef<T>(track: Track<any>, v: T): Ref<T> {
   return ref
 }
 
-export const sleep = <TNumber extends number>(dt: TNumber): Wait<TNumber> => ({ dependencies: new Set<ProceduralFunction<Wait<TNumber>>>(), duration: dt })
+export const sleep = <TNumber extends number>(dt: TNumber): Wait<TNumber> => ({ duration: dt })
 
 export function compile<TNumber extends number>(track: Track<TNumber>, time: TNumber = Infinity as TNumber): FixedTrack<TNumber>[] {
   const fixedTracks: FixedTrack<TNumber>[] = []
@@ -74,7 +74,10 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     // Subtract the wait time of the state from all other states
     const nextWaitTime = nextState.wait.duration!
     track.proceduralStates = track.proceduralStates.map((s) => {
-      return { ...s, wait: { ...s.wait, duration: (s.wait.duration! - nextWaitTime) as TNumber } }
+      if (s.wait.duration === undefined) {
+        return s
+      }
+      return { ...s, wait: { duration: (s.wait.duration! - nextWaitTime) as TNumber } }
     })
 
     // Time must be updated before calling next()
@@ -89,7 +92,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
             return s
           }
           else {
-            return { ...s, wait: { ...s.wait, dependencies: undefined, duration: 0 as TNumber } }
+            return { ...s, wait: { duration: 0 as TNumber } }
           }
         },
       )
@@ -138,14 +141,13 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
 
 export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: ProceduralFunction<Wait<TNumber>>): Task<Wait<TNumber>> {
   // Run immediately
-  track.proceduralStates.push({ f, wait: { dependencies: undefined, duration: 0 as TNumber }, totalCallsCount: 0 })
+  track.proceduralStates.push({ f, wait: { duration: 0 as TNumber }, totalCallsCount: 0 })
   return {
     cancel: () => {
       track.proceduralStates = track.proceduralStates.filter(s => s.f !== f)
     },
     wait: () => ({
       dependencies: new Set([f]),
-      duration: undefined,
     }),
   }
 }
