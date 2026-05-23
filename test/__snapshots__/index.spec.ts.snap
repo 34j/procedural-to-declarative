@@ -1,0 +1,135 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`index > the Tracker >  1`] = `
+[
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 1,
+  },
+  {
+    "declarativeStates": [
+      {
+        "duration": 1,
+        "f": [Function],
+        "startTime": 1,
+      },
+    ],
+    "proceduralStates": [
+      {
+        "f": {},
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 2,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 3,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 2,
+      },
+    ],
+    "time": 4,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 2,
+      },
+    ],
+    "time": 5,
+  },
+]
+`;

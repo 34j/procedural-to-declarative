@@ -1,26 +1,42 @@
 import type { Track } from '../src/tracker'
 import { describe, expect, it } from 'vitest'
-import { PureTracker } from '../src/pureTracker'
 import { compile, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/tracker'
 
 describe('index', () => {
   describe('the Tracker', () => {
     it('', () => {
-      const track = {} as Track<number>
+      const track: Track<number> = {
+        time: 0,
+        refs: [],
+        proceduralStates: [],
+        declarativeStates: [],
+      }
       const x = useRef(track, 0)
       function* f() {
         yield sleep(1)
+        throw new Error(track.time)
         x.current = 1
         yield sleep(1)
-        runDeclarative(track, (time: number) => {
+        throw new Error(track.time)
+        yield runDeclarative(track, (time: number) => {
           x.current = 1 + time
-        }, 1)
+        }, 1).wait()
         yield sleep(1)
         x.current += 1
         yield sleep(1)
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)
+      const visibleFixedTracks = fixedTracks.map(fixedTrack => ({
+        ...fixedTrack,
+        refValues: Array.from(fixedTrack.refValues.entries(), ([ref, value]) => ({
+          key: {
+            current: ref.current,
+          },
+          value,
+        })),
+      }))
+      expect(visibleFixedTracks).toMatchSnapshot()
       const eps = 1e-5
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
       compiled(0)
@@ -45,36 +61,6 @@ describe('index', () => {
       expect(x.current).toBe(3)
       compiled(5 + eps)
       expect(x.current).toBe(3)
-    })
-  })
-  describe('the PureTracker', () => {
-    it('', () => {
-      const tracker = new PureTracker<number>()
-      const fn = function (): void {
-        const x = tracker.useRef(0)
-        sleep(1)
-        x.current = 1
-        sleep(1)
-        tracker.run((time: number) => {
-          x.current = 1 + time
-        }, 1)
-        sleep(1)
-        x.current = 3
-        sleep(1)
-      }
-      const compiled = tracker.compile(fn)
-      const eps = 1e-5
-      expect(compiled(0)).toBe(0)
-      expect(compiled(1 - eps)).toBe(0)
-      expect(compiled(1)).toBe(1)
-      expect(compiled(2 - eps)).toBe(1)
-      expect(compiled(2)).toBe(1)
-      expect(compiled(2.5)).toBe(1.5)
-      expect(compiled(3)).toBe(2)
-      expect(compiled(4)).toBe(3)
-      expect(compiled(4.99)).toBe(3)
-      expect(compiled(-eps)).toBeUndefined()
-      expect(compiled(5 + eps)).toBeUndefined()
     })
   })
 })

@@ -64,21 +64,24 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     if (filteredStates.length === 0) {
       throw new Error('No procedural state any or all with no dependencies found.')
     }
+
+    // State with least wait time
     const nextState = filteredStates.reduce((least, s) => s.wait.duration < least.wait.duration ? s : least)
     if (nextState.wait.duration === Infinity) {
       throw new Error('No procedural state with fixed wait time found.')
     }
-    // Remove the least wait state
+
+    // Remove the state
     track.proceduralStates = track.proceduralStates.filter(s => s !== nextState)
 
-    // Subtract the wait time
+    // Subtract the wait time of the state from all other states
     const nextWaitTime = nextState.wait.duration!
-    const iteratorResult = nextState.f.next()
     track.proceduralStates = track.proceduralStates.map((s) => {
-      return { f: s.f, wait: { dependencies: s.wait.dependencies, duration: (s.wait.duration! - nextWaitTime) as TNumber, type: s.wait.type } }
+      return { ...s, wait: { ...s.wait, duration: (s.wait.duration! - nextWaitTime) as TNumber } }
     })
 
     // If the generator is done, remove it
+    const iteratorResult = nextState.f.next()
     if (iteratorResult.done) {
       track.proceduralStates = track.proceduralStates.map(
         (s) => {
@@ -99,22 +102,23 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     }
     // Otherwise, update the wait time of the generator to the new value returned by next()
     else {
-      track.proceduralStates.push({ f: nextState.f, wait: iteratorResult.value })
+      track.proceduralStates.push({ ...nextState, wait: iteratorResult.value })
     }
+    track.declarativeStates = track.declarativeStates.filter(s => (track.time < s.startTime + s.duration))
+    track.time = (track.time + nextWaitTime) as TNumber
     fixedTracks.push({
       time: track.time,
       refValues: new Map(track.refs.map(r => [r, r.current])),
-      proceduralStates: track.proceduralStates,
-      declarativeStates: track.declarativeStates,
+      proceduralStates: [...track.proceduralStates],
+      declarativeStates: [...track.declarativeStates],
     })
-    track.time = (track.time + nextWaitTime) as TNumber
   }
   track.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.f((time - s.startTime) as TNumber))
   return fixedTracks
 }
 
 export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixedTracks: FixedTrack<TNumber>[], time: number) {
-  const fixedTrack = fixedTracks.find(t => t.time > time)
+  const fixedTrack = fixedTracks.findLast(t => t.time <= time)
   if (!fixedTrack) {
     throw new Error('No fixed track found for the given time.')
   }
@@ -123,7 +127,7 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixed
       ref.current = fixedTrack.refValues.get(ref)
     }
   })
-  track.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.f((time - s.startTime) as TNumber))
+  track.declarativeStates.filter(s => (time >= s.startTime) && (time < s.startTime + s.duration)).forEach(s => s.f((time - s.startTime) as TNumber))
 }
 
 export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<WaitConstant<TNumber>> {
