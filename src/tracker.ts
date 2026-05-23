@@ -45,14 +45,20 @@ export class Tracker<TNumber extends number> {
       if (leastWaitState.wait.duration === undefined) {
         throw new Error('No procedural state with fixed wait time found.')
       }
+      // Remove the least wait state
       this.proceduralStates = this.proceduralStates.filter(s => s !== leastWaitState)
+
+      // Subtract the wait time
       const nextWaitTime = leastWaitState.wait.duration!
       const iteratorResult = leastWaitState.f.next()
-      this.proceduralStates = this.proceduralStates.map(s => s === leastWaitState ? { ...s, waitTime: (s.wait.duration - nextWaitTime) as TNumber } : s)
+      this.proceduralStates = this.proceduralStates.map((s) => {
+        return { f: s.f, wait: s.wait.duration !== undefined ? { ...s.wait, duration: (s.wait.duration! - nextWaitTime) as TNumber } : s.wait }
+      })
 
-      // If the generator is done, simply remove it
+      // If the generator is done, remove it
       if (iteratorResult.done) {
-        ;
+        // any -> finish
+        this.proceduralStates.filter()
       }
       // Otherwise, update the wait time of the generator to the new value returned by next()
       else {
