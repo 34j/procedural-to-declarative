@@ -17,7 +17,7 @@ export interface Ref<T> { current: T }
 export interface Task<TWait extends Wait<any>>
 {
   wait: () => TWait
-  cancel: () => void
+  suspend: () => void
 }
 export interface ProceduralState<TNumber extends number> {
   f: ProceduralFunction<Wait<TNumber>>
@@ -149,7 +149,7 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixed
 export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<Wait<TNumber>> {
   track.declarativeStates.push({ f, startTime: track.time, duration })
   return {
-    cancel: () => {
+    suspend: () => {
       track.declarativeStates = track.declarativeStates.filter(s => s.f !== f)
     },
     wait: () => sleep(duration),
@@ -160,7 +160,7 @@ export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: 
   // Run immediately
   track.proceduralStates.push({ f, wait: { duration: 0 as TNumber }, totalCallsCount: 0 })
   return {
-    cancel: () => {
+    suspend: () => {
       track.proceduralStates = track.proceduralStates.filter(s => s.f !== f)
     },
     wait: () => ({
@@ -180,7 +180,7 @@ export function all<TNumber extends number>(track: Track<TNumber>, tasks: Task<W
 
 export function any<TNumber extends number>(tasks: Task<Wait<TNumber>>[]): Task<Wait<TNumber>> {
   return {
-    cancel: () => tasks.forEach(t => t.cancel()),
+    suspend: () => tasks.forEach(t => t.suspend()),
     wait: () => {
       const waits = tasks.map(t => t.wait())
       const dependencies = new Set(...waits.filter(w => w.dependencies !== undefined).map(w => w.dependencies!))
