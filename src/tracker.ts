@@ -74,9 +74,9 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
 
     // State with least wait time
     const nextState = filteredStates.reduce((least, s) => (s.wait.duration! < least.wait.duration! ? s : least))
-    if (nextState.wait.duration === Infinity) {
-      throw new Error('No procedural state with fixed wait time found.')
-    }
+    // if (nextState.wait.duration === Infinity) {
+    //   throw new Error('No procedural state with fixed wait time found.')
+    // }
 
     // Remove the state
     track.proceduralStates = track.proceduralStates.filter(s => s !== nextState)
