@@ -39,6 +39,7 @@ export class Tracker<TNumber extends number> {
   declarativeStates: DeclarativeState<TNumber>[] = []
   currentTime: TNumber = 0 as TNumber
   declarativeCall = (time: TNumber) => {
+    this.currentTime = 0 as TNumber
     // Call next() of the generator with least wait time
     while (this.proceduralStates.length > 0 && this.currentTime <= time) {
       const filteredStates = this.proceduralStates.filter(s => (s.wait.type === 'any') || (s.wait.type === 'all' && s.wait.dependencies.size === 0))
@@ -84,7 +85,6 @@ export class Tracker<TNumber extends number> {
       }
     }
     this.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.f((time - s.startTime) as TNumber))
-    this.currentTime = 0 as TNumber
   }
 
   runDeclarative = (f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<WaitConstant<TNumber>> => {
