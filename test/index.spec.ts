@@ -14,10 +14,8 @@ describe('index', () => {
       const x = useRef(track, 0)
       function* f() {
         yield sleep(1)
-        throw new Error(track.time)
         x.current = 1
         yield sleep(1)
-        throw new Error(track.time)
         yield runDeclarative(track, (time: number) => {
           x.current = 1 + time
         }, 1).wait()

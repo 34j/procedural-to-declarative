@@ -25,6 +25,7 @@ export interface Task<TWait extends Wait<any, any>>
 }
 export interface ProceduralState<TNumber extends number> {
   f: ProceduralFunction<Wait<TNumber, any>>
+  totalCallsCount: number
   wait: Wait<TNumber, any>
 }
 export interface DeclarativeState<TNumber extends number> {
@@ -102,7 +103,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     }
     // Otherwise, update the wait time of the generator to the new value returned by next()
     else {
-      track.proceduralStates.push({ ...nextState, wait: iteratorResult.value })
+      track.proceduralStates.push({ ...nextState, wait: iteratorResult.value, totalCallsCount: nextState.totalCallsCount + 1 })
     }
     track.declarativeStates = track.declarativeStates.filter(s => (track.time < s.startTime + s.duration))
     track.time = (track.time + nextWaitTime) as TNumber
@@ -142,7 +143,7 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
 
 export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: ProceduralFunction<Wait<TNumber, any>>): Task<WaitAny<TNumber>> {
   // Run immediately
-  track.proceduralStates.push({ f, wait: { dependencies: new Set(), duration: 0 as TNumber, type: 'any' } })
+  track.proceduralStates.push({ f, wait: { dependencies: new Set(), duration: 0 as TNumber, type: 'any' }, totalCallsCount: 0 })
   return {
     cancel: () => {
       track.proceduralStates = track.proceduralStates.filter(s => s.f !== f)

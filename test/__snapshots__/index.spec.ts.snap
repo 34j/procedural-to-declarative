@@ -7,6 +7,7 @@ exports[`index > the Tracker >  1`] = `
     "proceduralStates": [
       {
         "f": {},
+        "totalCallsCount": 1,
         "wait": {
           "dependencies": Set {},
           "duration": 1,
@@ -29,6 +30,7 @@ exports[`index > the Tracker >  1`] = `
     "proceduralStates": [
       {
         "f": {},
+        "totalCallsCount": 2,
         "wait": {
           "dependencies": Set {},
           "duration": 1,
@@ -57,6 +59,7 @@ exports[`index > the Tracker >  1`] = `
     "proceduralStates": [
       {
         "f": {},
+        "totalCallsCount": 3,
         "wait": {
           "dependencies": Set {},
           "duration": 1,
@@ -79,6 +82,7 @@ exports[`index > the Tracker >  1`] = `
     "proceduralStates": [
       {
         "f": {},
+        "totalCallsCount": 4,
         "wait": {
           "dependencies": Set {},
           "duration": 1,
@@ -101,6 +105,7 @@ exports[`index > the Tracker >  1`] = `
     "proceduralStates": [
       {
         "f": {},
+        "totalCallsCount": 5,
         "wait": {
           "dependencies": Set {},
           "duration": 1,
