@@ -33,7 +33,7 @@ describe('index', () => {
           yield sleep(2)
           x.current = 2
         }
-        yield all(track, [runProcedural(track, g()), runProcedural(track, h())]).wait()
+        yield all([runProcedural(track, g()), runProcedural(track, h())]).wait()
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)
@@ -85,8 +85,10 @@ describe('index', () => {
       expect(x.current).toBe(0)
       compiled(1)
       expect(x.current).toBe(1)
+      compiled(2)
+      expect(x.current).toBe(1)
       compiled(5)
-      expect(x.current).toBe(2)
+      expect(x.current).toBe(1)
     })
 
     it('sleeps', () => {
