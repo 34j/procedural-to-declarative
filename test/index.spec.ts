@@ -1,7 +1,7 @@
 import type { Track } from '../src/tracker'
 import { describe, expect, it } from 'vitest'
 import { PureTracker } from '../src/pureTracker'
-import { runDeclarative, runProcedural, sleep, useRef } from '../src/tracker'
+import { compile, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/tracker'
 
 describe('index', () => {
   describe('the Tracker', () => {
@@ -20,8 +20,9 @@ describe('index', () => {
         yield sleep(1)
       }
       runProcedural(track, f())
-      const compiled = declarativeCall
+      const fixedTracks = compile(track)
       const eps = 1e-5
+      const compiled = (time: number) => useCompiled(track, fixedTracks, time)
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1 - eps)

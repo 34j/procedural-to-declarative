@@ -35,27 +35,28 @@ export interface DeclarativeState<TNumber extends number> {
 
 export interface Track<TNumber extends number> {
   time: TNumber
-  refs: Map<Ref<any>, any>
+  refs: Ref<any>[]
   proceduralStates: ProceduralState<TNumber>[]
   declarativeStates: DeclarativeState<TNumber>[]
 }
 
-export interface FixedTrack<TNumber extends number> extends Track<TNumber> {
+export interface FixedTrack<TNumber extends number> {
   time: TNumber
-  refs: Map<Ref<any>, any>
+  refValues: Map<Ref<any>, any>
   proceduralStates: ProceduralState<TNumber>[]
   declarativeStates: DeclarativeState<TNumber>[]
 }
 
 export function useRef<T>(track: Track<any>, v: T): Ref<T> {
   const ref = { current: v }
-  track.refs.set(ref, v)
+  track.refs.push(ref)
   return ref
 }
 
 export const sleep = <TNumber extends number>(dt: TNumber): WaitConstant<TNumber> => ({ dependencies: new Set<ProceduralFunction<Wait<TNumber, 'any'>>>(), duration: dt, type: 'any' })
 
-export function compile<TNumber extends number>(track: Track<TNumber>, time: TNumber) {
+export function compile<TNumber extends number>(track: Track<TNumber>, time: TNumber = Infinity as TNumber): FixedTrack<TNumber>[] {
+  const fixedTracks: FixedTrack<TNumber>[] = []
   track.time = 0 as TNumber
   // Call next() of the generator with least wait time
   while (track.proceduralStates.length > 0 && track.time <= time) {
@@ -100,7 +101,28 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     else {
       track.proceduralStates.push({ f: nextState.f, wait: iteratorResult.value })
     }
+    fixedTracks.push({
+      time: track.time,
+      refValues: new Map(track.refs.map(r => [r, r.current])),
+      proceduralStates: track.proceduralStates,
+      declarativeStates: track.declarativeStates,
+    })
+    track.time = (track.time + nextWaitTime) as TNumber
   }
+  track.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.f((time - s.startTime) as TNumber))
+  return fixedTracks
+}
+
+export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixedTracks: FixedTrack<TNumber>[], time: number) {
+  const fixedTrack = fixedTracks.find(t => t.time > time)
+  if (!fixedTrack) {
+    throw new Error('No fixed track found for the given time.')
+  }
+  track.refs.forEach((ref) => {
+    if (fixedTrack.refValues.has(ref)) {
+      ref.current = fixedTrack.refValues.get(ref)
+    }
+  })
   track.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.f((time - s.startTime) as TNumber))
 }
 
@@ -110,7 +132,7 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
     cancel: () => {
       track.declarativeStates = track.declarativeStates.filter(s => s.f !== f)
     },
-    wait: () => track.sleep(duration),
+    wait: () => sleep(duration),
   }
 }
 
