@@ -18,6 +18,7 @@ export interface Task<TWait extends Wait<any>>
 {
   wait: () => TWait
   suspend: () => void
+  resume: () => void
 }
 export interface ProceduralState<TNumber extends number> {
   f: ProceduralFunction<Wait<TNumber>>
@@ -147,10 +148,13 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixed
 }
 
 export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<Wait<TNumber>> {
-  track.declarativeStates.push({ f, startTime: track.time, duration })
+  const state = { f, startTime: track.time, duration }
+  track.declarativeStates.push(state)
   return {
     suspend: () => {
-      track.declarativeStates = track.declarativeStates.filter(s => s.f !== f)
+      track.declarativeStates = track.declarativeStates.filter(s => s !== state)
+    },
+    resume: () => {
     },
     wait: () => sleep(duration),
   }
@@ -158,10 +162,13 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
 
 export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: ProceduralFunction<Wait<TNumber>>): Task<Wait<TNumber>> {
   // Run immediately
-  track.proceduralStates.push({ f, wait: { duration: 0 as TNumber }, totalCallsCount: 0 })
+  const state = { f, wait: { duration: 0 as TNumber }, totalCallsCount: 0 }
+  track.proceduralStates.push(state)
   return {
     suspend: () => {
-      track.proceduralStates = track.proceduralStates.filter(s => s.f !== f)
+      track.proceduralStates = track.proceduralStates.filter(s => s !== state)
+    },
+    resume: () => {
     },
     wait: () => ({
       dependencies: new Set([f]),
@@ -181,6 +188,7 @@ export function all<TNumber extends number>(track: Track<TNumber>, tasks: Task<W
 export function any<TNumber extends number>(tasks: Task<Wait<TNumber>>[]): Task<Wait<TNumber>> {
   return {
     suspend: () => tasks.forEach(t => t.suspend()),
+    resume: () => tasks.forEach(t => t.resume()),
     wait: () => {
       const waits = tasks.map(t => t.wait())
       const dependencies = new Set(...waits.filter(w => w.dependencies !== undefined).map(w => w.dependencies!))
