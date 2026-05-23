@@ -16,6 +16,33 @@ function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<ty
 
 describe('index', () => {
   describe('tracker', () => {
+    it('should suspend and resume declarative', () => {
+      const track = createTrack()
+      const x = useRef(track, 0)
+      function* f() {
+        const task = runDeclarative(track, (time) => {
+          x.current = time
+        }, 10)
+        yield sleep(1)
+        task.suspend()
+        yield sleep(1)
+        task.resume()
+      }
+      runProcedural(track, f())
+      const fixedTracks = compile(track)
+      const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
+      expect(visibleFixedTracks).toMatchSnapshot()
+      const compiled = (time: number) => useCompiled(track, fixedTracks, time)
+      const eps = 1e-5
+      compiled(0)
+      expect(x.current).toBe(0)
+      compiled(1)
+      expect(x.current).toBe(1)
+      compiled(2)
+      expect(x.current).toBe(1)
+      compiled(3)
+      expect(x.current).toBe(2)
+    })
     it('should cancel and resume procedural', () => {
       const track = createTrack()
       const x = useRef(track, 0)

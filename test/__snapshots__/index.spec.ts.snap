@@ -808,3 +808,86 @@ exports[`index > tracker > should support README example 1`] = `
   },
 ]
 `;
+
+exports[`index > tracker > should suspend and resume declarative 1`] = `
+[
+  {
+    "declarativeStates": [
+      {
+        "duration": 10,
+        "f": [Function],
+        "progress": 0,
+        "suspended": false,
+      },
+    ],
+    "proceduralStates": [
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 1,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 1,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [
+      {
+        "duration": 10,
+        "f": [Function],
+        "progress": 1,
+        "suspended": true,
+      },
+    ],
+    "proceduralStates": [
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 2,
+        "wait": {
+          "duration": 1,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 1,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 1,
+  },
+  {
+    "declarativeStates": [
+      {
+        "duration": 10,
+        "f": [Function],
+        "progress": 1,
+        "suspended": false,
+      },
+    ],
+    "proceduralStates": [],
+    "refValues": [
+      {
+        "key": {
+          "current": 1,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 2,
+  },
+]
+`;
