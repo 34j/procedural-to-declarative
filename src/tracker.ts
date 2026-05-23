@@ -2,17 +2,17 @@
  * Procedural
  */
 export interface Wait<TNumber extends number, TDuration extends TNumber | undefined, TType extends 'any' | 'all'> {
-  dependencies: Set<ProceduralFunction<TNumber>>
+  dependencies: Set<ProceduralFunction<Wait<TNumber, TDuration, TType>>>
   duration: TDuration
   type: TType
 }
-export type ConstantWait<TNumber extends number> = Wait<TNumber, TNumber, 'any'>
+export type WaitConstant<TNumber extends number> = Wait<TNumber, TNumber, 'any'>
 export type WaitAny<TNumber extends number, TDuration extends TNumber | undefined> = Wait<TNumber, TDuration, 'any'>
 export type WaitAll<TNumber extends number, TDuration extends TNumber | undefined> = Wait<TNumber, TDuration, 'all'>
 /**
  * Procedural function. useRef().current can be read and written.
  */
-export type ProceduralFunction<TNumber extends number> = () => Iterator<TNumber, void, void>
+export type ProceduralFunction<TWait extends Wait<any, any, any>> = IterableIterator<TWait>
 /**
  * Declarative function. useRef().current is write-only.
  */
@@ -24,17 +24,17 @@ export interface Task<TWait extends Wait<any, any, any>>
   cancel: () => void
 }
 export interface ProceduralState<TNumber extends number> {
-  gen: Generator<TNumber, void, void>
+  f: ProceduralFunction<Wait<TNumber, any, any>>
   wait: Wait<TNumber, any, any>
 }
 export interface DeclarativeState<TNumber extends number> {
-  fn: DeclarativeFunction<TNumber, void>
+  f: DeclarativeFunction<TNumber, void>
   startTime: TNumber
   duration: TNumber
 }
 export class Tracker<TNumber extends number> {
   useRef = <T>(v: T): Ref<T> => { return { current: v } }
-  sleep = (dt: TNumber): ConstantWait<TNumber> => ({ dependencies: new Set(), duration: dt, type: 'any' })
+  sleep = (dt: TNumber): WaitConstant<TNumber> => ({ dependencies: new Set(), duration: dt, type: 'any' })
   proceduralStates: ProceduralState<TNumber>[] = []
   declarativeStates: DeclarativeState<TNumber>[] = []
   currentTime: TNumber = 0 as TNumber
@@ -47,7 +47,7 @@ export class Tracker<TNumber extends number> {
       }
       this.proceduralStates = this.proceduralStates.filter(s => s !== leastWaitState)
       const nextWaitTime = leastWaitState.wait.duration!
-      const iteratorResult = leastWaitState.gen.next()
+      const iteratorResult = leastWaitState.f.next()
       this.proceduralStates = this.proceduralStates.map(s => s === leastWaitState ? { ...s, waitTime: (s.wait.duration - nextWaitTime) as TNumber } : s)
 
       // If the generator is done, simply remove it
@@ -56,28 +56,28 @@ export class Tracker<TNumber extends number> {
       }
       // Otherwise, update the wait time of the generator to the new value returned by next()
       else {
-        this.proceduralStates.push({ gen: leastWaitState.gen, wait: iteratorResult.value })
+        this.proceduralStates.push({ f: leastWaitState.f, wait: iteratorResult.value })
       }
     }
-    this.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.fn((time - s.startTime) as TNumber))
+    this.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.f((time - s.startTime) as TNumber))
     this.currentTime = 0 as TNumber
   }
 
-  runDeclarative = (f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<ConstantWait<TNumber>> => {
-    this.declarativeStates.push({ fn: f, startTime: this.currentTime, duration })
+  runDeclarative = (f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<WaitConstant<TNumber>> => {
+    this.declarativeStates.push({ f, startTime: this.currentTime, duration })
     return {
       cancel: () => {
-        this.declarativeStates = this.declarativeStates.filter(s => s.fn !== f)
+        this.declarativeStates = this.declarativeStates.filter(s => s.f !== f)
       },
       wait: () => this.sleep(duration),
     }
   }
 
-  runProcedural = (f: ProceduralFunction<TNumber>): Task<WaitAny<TNumber, undefined>> => {
-    this.proceduralStates.push({ gen: f(), waitTime: 0 as TNumber })
+  runProcedural = (f: ProceduralFunction<Wait<TNumber, any, any>>): Task<WaitAny<TNumber, undefined>> => {
+    this.proceduralStates.push({ f, wait: { dependencies: new Set(), duration: undefined, type: 'any' } })
     return {
       cancel: () => {
-        this.proceduralStates = this.proceduralStates.filter(s => s.gen !== f)
+        this.proceduralStates = this.proceduralStates.filter(s => s.f !== f)
       },
       wait: () => ({
         dependencies: new Set(f),
