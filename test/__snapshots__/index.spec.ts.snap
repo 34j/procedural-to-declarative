@@ -323,6 +323,187 @@ exports[`index > tracker > should correctly handle all 1`] = `
 ]
 `;
 
+exports[`index > tracker > should correctly handle any 1`] = `
+[
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 0,
+        "wait": {
+          "duration": 0,
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 0,
+        "wait": {
+          "duration": 0,
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+          },
+          "duration": undefined,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 0,
+        "wait": {
+          "duration": 0,
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+          },
+          "duration": undefined,
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 1,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+          },
+          "duration": undefined,
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 1,
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 2,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 0,
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 1,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 1,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "duration": 1,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 1,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 2,
+      },
+    ],
+    "time": 2,
+  },
+]
+`;
+
 exports[`index > tracker > should support README example 1`] = `
 [
   {

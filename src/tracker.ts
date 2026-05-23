@@ -65,7 +65,8 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
 
     // State with least wait time
     const nextState = filteredStates.reduce((least, s) => (s.wait.duration! < least.wait.duration! ? s : least))
-    console.log(nextState.wait.duration )
+    console.log(JSON.stringify(filteredStates, null, 2))
+    console.log(nextState.wait)
     if (nextState.wait.duration === Infinity) {
       throw new Error('No procedural state with fixed wait time found.')
     }
@@ -178,8 +179,8 @@ export function any<TNumber extends number>(tasks: Task<Wait<TNumber>>[]): Task<
       const dependencies = new Set(...waits.filter(w => w.dependencies !== undefined).map(w => w.dependencies!))
       const duration = Math.min(...waits.filter(w => w.duration !== undefined).map(w => w.duration!)) as TNumber
       return {
-        dependencies,
-        duration,
+        dependencies: dependencies.size > 0 ? dependencies : undefined,
+        duration: duration === Infinity ? undefined : duration,
       }
     },
   }
