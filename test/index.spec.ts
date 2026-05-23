@@ -69,12 +69,7 @@ describe('index', () => {
       expect(x.current).toBe(2)
     })
     it('should correctly handle any', () => {
-      const track: Track<number> = {
-        time: 0,
-        refs: [],
-        proceduralStates: [],
-        declarativeStates: [],
-      }
+      const track = createTrack()
       const x = useRef(track, 0)
       function* f() {
         function* g() {
@@ -109,12 +104,7 @@ describe('index', () => {
     })
 
     it('should support README example', () => {
-      const track: Track<number> = {
-        time: 0,
-        refs: [],
-        proceduralStates: [],
-        declarativeStates: [],
-      }
+      const track = createTrack()
       const x = useRef(track, 0)
       function* f() {
         expect(track.time).toBe(0)
