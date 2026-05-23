@@ -113,7 +113,7 @@ export class Tracker<TNumber extends number> {
   }
 }
 
-export const all = (tasks: Task<Wait<TNumber, any>>[]): Task<WaitAll<TNumber>> => {
+export function all<TNumber extends number>(tasks: Task<Wait<TNumber, any>>[]): Task<WaitAll<TNumber>> {
   return {
     cancel: () => tasks.forEach(t => t.cancel()),
     wait: () => {
@@ -129,7 +129,7 @@ export const all = (tasks: Task<Wait<TNumber, any>>[]): Task<WaitAll<TNumber>> =
   }
 }
 
-export const any = (tasks: Task<Wait<TNumber, any>>[]): Task<WaitAny<TNumber>> => {
+export function any<TNumber extends number>(tasks: Task<Wait<TNumber, any>>[]): Task<WaitAny<TNumber>> {
   return {
     cancel: () => tasks.forEach(t => t.cancel()),
     wait: () => {
