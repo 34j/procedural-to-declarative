@@ -101,7 +101,11 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     else {
       track.proceduralStates.push({ ...nextState, wait: iteratorResult.value, totalCallsCount: nextState.totalCallsCount + 1 })
     }
+
+    // Remove declarative states that have ended
     track.declarativeStates = track.declarativeStates.filter(s => (track.time < s.startTime + s.duration))
+
+    // Save the fixed track (copy)
     fixedTracks.push({
       time: track.time,
       refValues: new Map(track.refs.map(r => [r, r.current])),
@@ -109,6 +113,9 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
       declarativeStates: [...track.declarativeStates],
     })
   }
+
+  // Run remaining declarative states at the end
+  // for the case where time is not Infinity
   track.declarativeStates.filter(s => time >= s.startTime && time < s.startTime + s.duration).forEach(s => s.f((time - s.startTime) as TNumber))
   return fixedTracks
 }
