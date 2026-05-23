@@ -61,7 +61,6 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
   track.time = 0 as TNumber
   // Call next() of the generator with least wait time
   while (track.proceduralStates.length > 0 && track.time <= time) {
-    console.log(track.time)
     const filteredStates = track.proceduralStates.filter(s => (s.wait.type === 'any') || (s.wait.type === 'all' && s.wait.dependencies.size === 0))
     if (filteredStates.length === 0) {
       throw new Error('No procedural state any or all with no dependencies found.')
@@ -95,11 +94,11 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
           }
           // any -> remove all
           else if (s.wait.type === 'any') {
-            return { ...s.f, wait: { dependencies: new Set([]), duration: 0 as TNumber, type: 'any' } }
+            return { ...s.f, wait: { ...s.wait, dependencies: new Set([]), duration: 0 as TNumber } }
           }
           // all -> remove only f
           else if (s.wait.type === 'all') {
-            return { ...s.f, wait: { dependencies: new Set([...s.wait.dependencies].filter(d => d !== nextState.f)), duration: s.wait.duration, type: 'all' } }
+            return { ...s.f, wait: { ...s.wait, dependencies: new Set([...s.wait.dependencies].filter(d => d !== nextState.f)), duration: s.wait.duration } }
           }
           return s
         },

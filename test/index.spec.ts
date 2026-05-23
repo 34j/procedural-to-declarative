@@ -1,6 +1,6 @@
 import type { Track } from '../src/tracker'
 import { describe, expect, it } from 'vitest'
-import { compile, runDeclarative, runProcedural, sleep, useCompiled, useRef, any, all } from '../src/tracker'
+import { all, any, compile, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/tracker'
 
 describe('index', () => {
   describe('tracker', () => {
