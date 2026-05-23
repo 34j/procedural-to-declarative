@@ -21,13 +21,15 @@ describe('index', () => {
       const x = useRef(track, 0)
       function* f() {
         const taskG = runProcedural(track, g())
-        yield sleep(1.5)
+        yield sleep(2)
         taskG.suspend()
+        yield sleep(2)
+        taskG.resume()
       }
       function* g() {
         yield sleep(1)
         x.current = 1
-        yield sleep(1)
+        yield sleep(2)
         x.current = 2
       }
       runProcedural(track, f())
@@ -42,12 +44,10 @@ describe('index', () => {
       expect(x.current).toBe(0)
       compiled(1)
       expect(x.current).toBe(1)
-      compiled(2 - eps)
+      compiled(5 - eps)
       expect(x.current).toBe(1)
-      compiled(2)
-      expect(x.current).toBe(1)
-      compiled(3)
-      expect(x.current).toBe(1)
+      compiled(5)
+      expect(x.current).toBe(2)
     })
     it('should raise when dead lock', () => {
       const track = createTrack()

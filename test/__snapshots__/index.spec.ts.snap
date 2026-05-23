@@ -18,14 +18,14 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
-          "duration": 0.5,
+          "duration": 1,
         },
       },
     ],
     "refValues": [
       {
         "key": {
-          "current": 1,
+          "current": 2,
         },
         "value": 0,
       },
@@ -40,7 +40,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
-          "duration": 0.5,
+          "duration": 1,
         },
       },
       {
@@ -55,7 +55,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
     "refValues": [
       {
         "key": {
-          "current": 1,
+          "current": 2,
         },
         "value": 0,
       },
@@ -70,7 +70,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
-          "duration": 0.5,
+          "duration": 1,
         },
       },
       {
@@ -78,14 +78,14 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
         "suspended": false,
         "totalCallsCount": 2,
         "wait": {
-          "duration": 0.5,
+          "duration": 1,
         },
       },
     ],
     "refValues": [
       {
         "key": {
-          "current": 1,
+          "current": 2,
         },
         "value": 1,
       },
@@ -100,19 +100,62 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
         "suspended": true,
         "totalCallsCount": 2,
         "wait": {
-          "duration": 0.5,
+          "duration": 1,
+        },
+      },
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 2,
+        "wait": {
+          "duration": 2,
         },
       },
     ],
     "refValues": [
       {
         "key": {
-          "current": 1,
+          "current": 2,
         },
         "value": 1,
       },
     ],
-    "time": 1.5,
+    "time": 2,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "suspended": false,
+        "totalCallsCount": 2,
+        "wait": {
+          "duration": 1,
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 4,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 2,
+      },
+    ],
+    "time": 5,
   },
 ]
 `;
