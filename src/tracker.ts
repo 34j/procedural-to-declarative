@@ -65,8 +65,6 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
 
     // State with least wait time
     const nextState = filteredStates.reduce((least, s) => (s.wait.duration! < least.wait.duration! ? s : least))
-    console.log(JSON.stringify(filteredStates, null, 2))
-    console.log(nextState.wait)
     if (nextState.wait.duration === Infinity) {
       throw new Error('No procedural state with fixed wait time found.')
     }
