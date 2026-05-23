@@ -112,7 +112,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     }
     // Otherwise, update the wait time of the generator to the new value returned by next()
     else {
-      //track.proceduralStates.push({ ...nextState, wait: iteratorResult.value, totalCallsCount: nextState.totalCallsCount + 1 })
+      // track.proceduralStates.push({ ...nextState, wait: iteratorResult.value, totalCallsCount: nextState.totalCallsCount + 1 })
       nextState.wait = iteratorResult.value
       nextState.totalCallsCount += 1
       track.proceduralStates.push(nextState)

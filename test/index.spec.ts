@@ -1,6 +1,5 @@
-import type { Track } from '../src/tracker'
 import { describe, expect, it } from 'vitest'
-import { all, any, compile, runDeclarative, runProcedural, sleep, useCompiled, useRef, createTrack } from '../src/tracker'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/tracker'
 
 function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<typeof compile<TNumber>>) {
   return fixedTracks.map(fixedTrack => ({
@@ -64,7 +63,7 @@ describe('index', () => {
       const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
       expect(visibleFixedTracks).toMatchSnapshot()
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
-      
+
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1 - eps)
@@ -109,7 +108,7 @@ describe('index', () => {
       const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
       expect(visibleFixedTracks).toMatchSnapshot()
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
-      
+
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1 - eps)
@@ -143,7 +142,7 @@ describe('index', () => {
       const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
       expect(visibleFixedTracks).toMatchSnapshot()
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
-      
+
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1 - eps)
@@ -182,7 +181,7 @@ describe('index', () => {
       const fixedTracks = compile(track)
       const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
       expect(visibleFixedTracks).toMatchSnapshot()
-      
+
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
       compiled(0)
       expect(x.current).toBe(0)
