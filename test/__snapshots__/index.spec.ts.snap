@@ -53,7 +53,7 @@ exports[`index > the Tracker >  1`] = `
       {
         "duration": 1,
         "f": [Function],
-        "startTime": 1,
+        "startTime": 2,
       },
     ],
     "proceduralStates": [

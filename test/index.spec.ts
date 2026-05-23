@@ -18,12 +18,16 @@ describe('index', () => {
         expect(track.time).toBe(1)
         x.current = 1
         yield sleep(1)
+        expect(track.time).toBe(2)
         yield runDeclarative(track, (time: number) => {
           x.current = 1 + time
         }, 1).wait()
+        expect(track.time).toBe(3)
         yield sleep(1)
+        expect(track.time).toBe(4)
         x.current += 1
         yield sleep(1)
+        expect(track.time).toBe(5)
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)
@@ -52,15 +56,14 @@ describe('index', () => {
       compiled(2.5)
       expect(x.current).toBe(1.5)
       compiled(3)
-      expect(x.current).toBe(2)
+      expect(x.current).toBe(1)
       compiled(4)
-      expect(x.current).toBe(3)
+      expect(x.current).toBe(2)
       compiled(5)
-      expect(x.current).toBe(3)
-      compiled(-eps)
-      expect(x.current).toBe(3)
+      expect(x.current).toBe(2)
       compiled(5 + eps)
-      expect(x.current).toBe(3)
+      expect(x.current).toBe(2)
+      expect(() => compiled(-1)).toThrow()
     })
   })
 })

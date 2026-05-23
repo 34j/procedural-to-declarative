@@ -61,6 +61,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
   track.time = 0 as TNumber
   // Call next() of the generator with least wait time
   while (track.proceduralStates.length > 0 && track.time <= time) {
+    console.log(track.time)
     const filteredStates = track.proceduralStates.filter(s => (s.wait.type === 'any') || (s.wait.type === 'all' && s.wait.dependencies.size === 0))
     if (filteredStates.length === 0) {
       throw new Error('No procedural state any or all with no dependencies found.')
@@ -80,6 +81,9 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     track.proceduralStates = track.proceduralStates.map((s) => {
       return { ...s, wait: { ...s.wait, duration: (s.wait.duration! - nextWaitTime) as TNumber } }
     })
+
+    // Time must be updated before calling next()
+    track.time = (track.time + nextWaitTime) as TNumber
 
     // If the generator is done, remove it
     const iteratorResult = nextState.f.next()
@@ -106,7 +110,6 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
       track.proceduralStates.push({ ...nextState, wait: iteratorResult.value, totalCallsCount: nextState.totalCallsCount + 1 })
     }
     track.declarativeStates = track.declarativeStates.filter(s => (track.time < s.startTime + s.duration))
-    track.time = (track.time + nextWaitTime) as TNumber
     fixedTracks.push({
       time: track.time,
       refValues: new Map(track.refs.map(r => [r, r.current])),
@@ -128,7 +131,7 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixed
       ref.current = fixedTrack.refValues.get(ref)
     }
   })
-  track.declarativeStates.filter(s => (time >= s.startTime) && (time < s.startTime + s.duration)).forEach(s => s.f((time - s.startTime) as TNumber))
+  fixedTrack.declarativeStates.filter(s => (time >= s.startTime) && (time < s.startTime + s.duration)).forEach(s => s.f((time - s.startTime) as TNumber))
 }
 
 export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<WaitConstant<TNumber>> {
