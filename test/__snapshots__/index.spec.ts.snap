@@ -565,7 +565,7 @@ exports[`index > tracker > should support README example 1`] = `
       {
         "duration": 1,
         "f": [Function],
-        "progress": 1,
+        "progress": 0,
         "suspended": false,
       },
     ],

@@ -122,8 +122,8 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     fixedTracks.push({
       time: track.time,
       refValues: new Map(track.refs.map(r => [r, r.current])),
-      proceduralStates: [...track.proceduralStates],
-      declarativeStates: [...track.declarativeStates],
+      proceduralStates: [...track.proceduralStates.map(s => ({ ...s }))],
+      declarativeStates: [...track.declarativeStates.map(s => ({ ...s }))],
     })
   }
 
@@ -146,7 +146,7 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixed
       ref.current = fixedTrack.refValues.get(ref)
     }
   })
-  fixedTrack.declarativeStates.filter(s => s.progress < s.duration).forEach(s => s.f(s.progress))
+  fixedTrack.declarativeStates.filter(s => s.progress < s.duration).forEach(s => s.f((s.progress + time - fixedTrack.time) as TNumber))
 }
 
 export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<Wait<TNumber>> {

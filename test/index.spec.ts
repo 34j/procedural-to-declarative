@@ -31,12 +31,7 @@ describe('index', () => {
       expect(() => compile(track)).toThrow()
     })
     it('should correctly handle all', () => {
-      const track: Track<number> = {
-        time: 0,
-        refs: [],
-        proceduralStates: [],
-        declarativeStates: [],
-      }
+      const track = createTrack()
       const x = useRef(track, 0)
       function* f() {
         function* g() {
