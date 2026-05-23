@@ -164,11 +164,11 @@ export function any<TNumber extends number>(tasks: Task<Wait<TNumber>>[]): Task<
     cancel: () => tasks.forEach(t => t.cancel()),
     wait: () => {
       const waits = tasks.map(t => t.wait())
-      const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber>>>())
-      const duration = waits.map(w => w.duration).reduce((d1, d2) => Math.min(d1 ?? (Infinity as TNumber), d2 ?? (Infinity as TNumber)), Infinity as TNumber)
+      const dependencies = new Set(...waits.filter(w => w.dependencies !== undefined).map(w => w.dependencies!))
+      const duration = Math.min(...waits.filter(w => w.duration !== undefined).map(w => w.duration!)) as TNumber
       return {
         dependencies,
-        duration: duration === Infinity ? undefined : duration,
+        duration,
       }
     },
   }
