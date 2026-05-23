@@ -111,36 +111,36 @@ export class Tracker<TNumber extends number> {
       }),
     }
   }
+}
 
-  all = (tasks: Task<Wait<TNumber, any>>[]): Task<WaitAll<TNumber>> => {
-    return {
-      cancel: () => tasks.forEach(t => t.cancel()),
-      wait: () => {
-        const waits = tasks.map(t => t.wait())
-        const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
-        const duration = Math.max(...waits.map(w => w.duration)) as TNumber
-        return {
-          dependencies,
-          type: 'all',
-          duration,
-        }
-      },
-    }
+export const all = (tasks: Task<Wait<TNumber, any>>[]): Task<WaitAll<TNumber>> => {
+  return {
+    cancel: () => tasks.forEach(t => t.cancel()),
+    wait: () => {
+      const waits = tasks.map(t => t.wait())
+      const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
+      const duration = Math.max(...waits.map(w => w.duration)) as TNumber
+      return {
+        dependencies,
+        type: 'all',
+        duration,
+      }
+    },
   }
+}
 
-  any = (tasks: Task<Wait<TNumber, any>>[]): Task<WaitAny<TNumber>> => {
-    return {
-      cancel: () => tasks.forEach(t => t.cancel()),
-      wait: () => {
-        const waits = tasks.map(t => t.wait())
-        const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
-        const duration = Math.min(...waits.map(w => w.duration)) as TNumber
-        return {
-          dependencies,
-          type: 'any',
-          duration,
-        }
-      },
-    }
+export const any = (tasks: Task<Wait<TNumber, any>>[]): Task<WaitAny<TNumber>> => {
+  return {
+    cancel: () => tasks.forEach(t => t.cancel()),
+    wait: () => {
+      const waits = tasks.map(t => t.wait())
+      const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
+      const duration = Math.min(...waits.map(w => w.duration)) as TNumber
+      return {
+        dependencies,
+        type: 'any',
+        duration,
+      }
+    },
   }
 }
