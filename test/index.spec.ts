@@ -4,7 +4,7 @@ import { all, any, compile, runDeclarative, runProcedural, sleep, useCompiled, u
 
 describe('index', () => {
   describe('tracker', () => {
-    describe('all', () => {
+    it('all', () => {
       const track: Track<number> = {
         time: 0,
         refs: [],
@@ -21,7 +21,7 @@ describe('index', () => {
           yield sleep(2)
           x.current = 2
         }
-        yield all([runProcedural(track, g()), runProcedural(track, h())])
+        yield all([runProcedural(track, g()), runProcedural(track, h())]).wait()
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)
@@ -40,7 +40,7 @@ describe('index', () => {
       compiled(5)
       expect(x.current).toBe(2)
     })
-    describe('any', () => {
+    it('any', () => {
       const track: Track<number> = {
         time: 0,
         refs: [],
@@ -57,7 +57,7 @@ describe('index', () => {
           yield sleep(2)
           x.current = 2
         }
-        yield any([runProcedural(track, g()), runProcedural(track, h())])
+        yield any([runProcedural(track, g()), runProcedural(track, h())]).wait()
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)

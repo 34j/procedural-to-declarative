@@ -94,11 +94,11 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
           }
           // any -> remove all
           else if (s.wait.type === 'any') {
-            return { ...s.f, wait: { ...s.wait, dependencies: new Set([]), duration: 0 as TNumber } }
+            return { ...s, wait: { ...s.wait, dependencies: new Set([]), duration: 0 as TNumber } }
           }
           // all -> remove only f
           else if (s.wait.type === 'all') {
-            return { ...s.f, wait: { ...s.wait, dependencies: new Set([...s.wait.dependencies].filter(d => d !== nextState.f)), duration: s.wait.duration } }
+            return { ...s, wait: { ...s.wait, dependencies: new Set([...s.wait.dependencies].filter(d => d !== nextState.f)), duration: s.wait.duration } }
           }
           return s
         },
@@ -164,11 +164,10 @@ export function all<TNumber extends number>(tasks: Task<Wait<TNumber, any>>[]): 
     wait: () => {
       const waits = tasks.map(t => t.wait())
       const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
-      const duration = Math.max(...waits.map(w => w.duration)) as TNumber
       return {
         dependencies,
         type: 'all',
-        duration,
+        duration: 0 as TNumber,
       }
     },
   }
@@ -180,11 +179,10 @@ export function any<TNumber extends number>(tasks: Task<Wait<TNumber, any>>[]): 
     wait: () => {
       const waits = tasks.map(t => t.wait())
       const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
-      const duration = Math.min(...waits.map(w => w.duration)) as TNumber
       return {
         dependencies,
         type: 'any',
-        duration,
+        duration: 0 as TNumber,
       }
     },
   }
