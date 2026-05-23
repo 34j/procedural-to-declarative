@@ -3,7 +3,7 @@
  */
 export interface Wait<TNumber extends number, TType extends 'any' | 'all'> {
   dependencies: Set<ProceduralFunction<Wait<TNumber, TType>>>
-  duration: TNumber | undefined
+  duration: TNumber
   type: TType
 }
 export type WaitConstant<TNumber extends number> = Wait<TNumber, 'any'>
@@ -41,8 +41,8 @@ export class Tracker<TNumber extends number> {
   declarativeCall = (time: TNumber) => {
     // Call next() of the generator with least wait time
     while (this.proceduralStates.length > 0 && this.currentTime <= time) {
-      const leastWaitState = this.proceduralStates.filter(s => s.wait.duration !== undefined).reduce((least, s) => s.wait.duration! < least.wait.duration! ? s : least)
-      if (leastWaitState.wait.duration === undefined) {
+      const leastWaitState = this.proceduralStates.reduce((least, s) => s.wait.duration < least.wait.duration ? s : least)
+      if (leastWaitState.wait.duration === Infinity) {
         throw new Error('No procedural state with fixed wait time found.')
       }
       // Remove the least wait state
@@ -52,12 +52,27 @@ export class Tracker<TNumber extends number> {
       const nextWaitTime = leastWaitState.wait.duration!
       const iteratorResult = leastWaitState.f.next()
       this.proceduralStates = this.proceduralStates.map((s) => {
-        return { f: s.f, wait: s.wait.duration !== undefined ? { ...s.wait, duration: (s.wait.duration! - nextWaitTime) as TNumber } : s.wait }
+        return { f: s.f, wait: { dependencies: s.wait.dependencies, duration: (s.wait.duration! - nextWaitTime) as TNumber, type: s.wait.type } }
       })
 
       // If the generator is done, remove it
       if (iteratorResult.done) {
-        // any -> finish
+        this.proceduralStates = this.proceduralStates.map(
+          (s) => {
+            if (!s.wait.dependencies.has(leastWaitState.f)) {
+              return s
+            }
+            // any -> remove all
+            else if (s.wait.type === 'any') {
+              return { f: s.f, wait: { dependencies: new Set([]), duration: 0 as TNumber, type: 'any' } }
+            }
+            // all -> remove only f
+            else if (s.wait.type === 'all') {
+              return { f: s.f, wait: { dependencies: new Set([...s.wait.dependencies].filter(d => d !== leastWaitState.f)), duration: s.wait.duration, type: 'all' } }
+            }
+            return s
+          },
+        )
       }
       // Otherwise, update the wait time of the generator to the new value returned by next()
       else {
@@ -79,7 +94,8 @@ export class Tracker<TNumber extends number> {
   }
 
   runProcedural = (f: ProceduralFunction<Wait<TNumber, any>>): Task<WaitAny<TNumber>> => {
-    this.proceduralStates.push({ f, wait: { dependencies: new Set(), duration: undefined, type: 'any' } })
+    // Run immediately
+    this.proceduralStates.push({ f, wait: { dependencies: new Set(), duration: 0 as TNumber, type: 'any' } })
     return {
       cancel: () => {
         this.proceduralStates = this.proceduralStates.filter(s => s.f !== f)
@@ -87,7 +103,7 @@ export class Tracker<TNumber extends number> {
       wait: () => ({
         dependencies: new Set([f]),
         type: 'any',
-        duration: undefined,
+        duration: Infinity as TNumber,
       }),
     }
   }
@@ -98,7 +114,7 @@ export class Tracker<TNumber extends number> {
       wait: () => {
         const waits = tasks.map(t => t.wait())
         const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
-        const duration = waits.reduce((max, w) => w.duration === undefined ? max : Math.max(max, w.duration) as TNumber, 0 as TNumber)
+        const duration = Math.max(...waits.map(w => w.duration)) as TNumber
         return {
           dependencies,
           type: 'all',
@@ -114,11 +130,11 @@ export class Tracker<TNumber extends number> {
       wait: () => {
         const waits = tasks.map(t => t.wait())
         const dependencies = waits.reduce((s, w) => new Set([...s, ...w.dependencies]), new Set<ProceduralFunction<Wait<TNumber, any>>>())
-        const duration = waits.reduce((min, w) => w.duration === undefined ? min : Math.min(min, w.duration) as TNumber, Infinity as TNumber)
+        const duration = Math.min(...waits.map(w => w.duration)) as TNumber
         return {
           dependencies,
           type: 'any',
-          duration: duration === Infinity ? undefined : duration,
+          duration,
         }
       },
     }
