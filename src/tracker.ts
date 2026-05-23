@@ -138,7 +138,7 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
 
 export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: ProceduralFunction<Wait<TNumber>>): Task<Wait<TNumber>> {
   // Run immediately
-  track.proceduralStates.push({ f, wait: { dependencies: undefined, duration: undefined }, totalCallsCount: 0 })
+  track.proceduralStates.push({ f, wait: { dependencies: undefined, duration: 0 as TNumber }, totalCallsCount: 0 })
   return {
     cancel: () => {
       track.proceduralStates = track.proceduralStates.filter(s => s.f !== f)

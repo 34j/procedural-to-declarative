@@ -16,7 +16,7 @@ function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<ty
 
 describe('index', () => {
   describe('tracker', () => {
-    it('all', () => {
+    it('should correctly handle all', () => {
       const track: Track<number> = {
         time: 0,
         refs: [],
@@ -33,7 +33,7 @@ describe('index', () => {
           yield sleep(2)
           x.current = 2
         }
-        yield all([runProcedural(track, g()), runProcedural(track, h())]).wait()
+        yield all(track, [runProcedural(track, g()), runProcedural(track, h())]).wait()
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)
@@ -54,7 +54,7 @@ describe('index', () => {
       compiled(5)
       expect(x.current).toBe(2)
     })
-    it('any', () => {
+    it('should correctly handle any', () => {
       const track: Track<number> = {
         time: 0,
         refs: [],
@@ -91,7 +91,7 @@ describe('index', () => {
       expect(x.current).toBe(1)
     })
 
-    it('sleeps', () => {
+    it('should support README example', () => {
       const track: Track<number> = {
         time: 0,
         refs: [],
