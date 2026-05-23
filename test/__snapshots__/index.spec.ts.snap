@@ -1,5 +1,417 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`index > tracker > all 1`] = `
+[
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 0,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 0,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 0,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 0,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+            {},
+          },
+          "duration": 0,
+          "type": "all",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 0,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 0,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+            {},
+          },
+          "duration": 0,
+          "type": "all",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+            {},
+          },
+          "duration": 0,
+          "type": "all",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 2,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+          },
+          "duration": -1,
+          "type": "all",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 1,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": -2,
+          "type": "all",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 2,
+      },
+    ],
+    "time": 2,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 2,
+      },
+    ],
+    "time": 0,
+  },
+]
+`;
+
+exports[`index > tracker > any 1`] = `
+[
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 0,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 0,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 0,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 0,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+            {},
+          },
+          "duration": 0,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 0,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 0,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+            {},
+          },
+          "duration": 0,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {
+            {},
+            {},
+          },
+          "duration": 0,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 2,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 0,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": -1,
+          "type": "any",
+        },
+      },
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 1,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 1,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [
+      {
+        "f": {},
+        "totalCallsCount": 1,
+        "wait": {
+          "dependencies": Set {},
+          "duration": 2,
+          "type": "any",
+        },
+      },
+    ],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 1,
+      },
+    ],
+    "time": 0,
+  },
+  {
+    "declarativeStates": [],
+    "proceduralStates": [],
+    "refValues": [
+      {
+        "key": {
+          "current": 2,
+        },
+        "value": 2,
+      },
+    ],
+    "time": 2,
+  },
+]
+`;
+
 exports[`index > tracker > sleeps 1`] = `
 [
   {

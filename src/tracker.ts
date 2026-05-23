@@ -61,7 +61,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
   track.time = 0 as TNumber
   // Call next() of the generator with least wait time
   while (track.proceduralStates.length > 0 && track.time <= time) {
-    const filteredStates = track.proceduralStates.filter(s => (s.wait.type === 'any') || (s.wait.type === 'all' && s.wait.dependencies.size === 0))
+    const filteredStates = track.proceduralStates.filter(s => s.wait.dependencies.size === 0)
     if (filteredStates.length === 0) {
       throw new Error('No procedural state any or all with no dependencies found.')
     }
@@ -94,11 +94,11 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
           }
           // any -> remove all
           else if (s.wait.type === 'any') {
-            return { ...s, wait: { ...s.wait, dependencies: new Set([]), duration: 0 as TNumber } }
+            return { ...s, wait: { ...s.wait, dependencies: new Set([]) } }
           }
           // all -> remove only f
           else if (s.wait.type === 'all') {
-            return { ...s, wait: { ...s.wait, dependencies: new Set([...s.wait.dependencies].filter(d => d !== nextState.f)), duration: s.wait.duration } }
+            return { ...s, wait: { ...s.wait, dependencies: new Set([...s.wait.dependencies].filter(d => d !== nextState.f)) } }
           }
           return s
         },
@@ -121,6 +121,9 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
 }
 
 export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixedTracks: FixedTrack<TNumber>[], time: number) {
+  if (time < 0) {
+    throw new Error('Time cannot be negative.')
+  }
   const fixedTrack = fixedTracks.findLast(t => t.time <= time)
   if (!fixedTrack) {
     throw new Error('No fixed track found for the given time.')
@@ -153,7 +156,7 @@ export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: 
     wait: () => ({
       dependencies: new Set([f]),
       type: 'any',
-      duration: Infinity as TNumber,
+      duration: 0 as TNumber,
     }),
   }
 }
