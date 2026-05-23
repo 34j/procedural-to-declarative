@@ -95,11 +95,11 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
           }
           // any -> remove all
           else if (s.wait.type === 'any') {
-            return { f: s.f, wait: { dependencies: new Set([]), duration: 0 as TNumber, type: 'any' } }
+            return { ...s.f, wait: { dependencies: new Set([]), duration: 0 as TNumber, type: 'any' } }
           }
           // all -> remove only f
           else if (s.wait.type === 'all') {
-            return { f: s.f, wait: { dependencies: new Set([...s.wait.dependencies].filter(d => d !== nextState.f)), duration: s.wait.duration, type: 'all' } }
+            return { ...s.f, wait: { dependencies: new Set([...s.wait.dependencies].filter(d => d !== nextState.f)), duration: s.wait.duration, type: 'all' } }
           }
           return s
         },
