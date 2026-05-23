@@ -1,36 +1,31 @@
 /**
  * Procedural
  */
-export type ConstantWait<TNumber extends number> = TNumber
-export interface DependencyWait<TNumber extends number, TType extends 'any' | 'all'> {
+export interface Wait<TNumber extends number, TDuration extends TNumber | undefined,TType extends 'any' | 'all'> {
   dependencies: Set<ProceduralFunction<TNumber>>
+  duration: TDuration
   type: TType
 }
-export type DependencyWaitAny<TNumber extends number> = DependencyWait<TNumber, 'any'>
-export type DependencyWaitAll<TNumber extends number> = DependencyWait<TNumber, 'all'>
-export type Wait<TNumber extends number> = ConstantWait<TNumber> | DependencyWait<TNumber>
+export type ConstantWait<TNumber extends number> = Wait<TNumber, TNumber, 'any'>
+export type WaitAny<TNumber extends number, TDuration extends TNumber | undefined> = Wait<TNumber, TDuration, 'any'>
+export type WaitAll<TNumber extends number, TDuration extends TNumber | undefined> = Wait<TNumber, TDuration, 'all'>
 /**
  * Procedural function. useRef().current can be read and written.
  */
-export type ProceduralFunction<TNumber extends number> = () => Generator<Wait<TNumber>, void, void>
+export type ProceduralFunction<TNumber extends number> = () => Generator<Wait<TNumber, any, any>, void, void>
 /**
  * Declarative function. useRef().current is write-only.
  */
 export type DeclarativeFunction<TNumber extends number, T> = (time: TNumber) => T | undefined
 export interface Ref<T> { current: T }
-export interface Task<TWait extends Wait<any>>
+export interface Task<TWait extends Wait<any, any, any>>
 {
   wait: () => TWait
   cancel: () => void
 }
 export interface ProceduralState<TNumber extends number> {
   gen: Generator<TNumber, void, void>
-  waitTime: TNumber
-}
-export interface ProceduralDependentState<TNumber extends number> {
-  gen: Generator<TNumber, void, void>
-  dependencies: Set<ProceduralDependentState<TNumber>>
-  type: 'any' | 'all'
+  wait: Wait<TNumber, any, any>
 }
 export interface DeclarativeState<TNumber extends number> {
   fn: DeclarativeFunction<TNumber, void>
@@ -39,7 +34,7 @@ export interface DeclarativeState<TNumber extends number> {
 }
 export class Tracker<TNumber extends number> {
   useRef = <T>(v: T): Ref<T> => { return { current: v } }
-  sleep = (dt: TNumber): ConstantWait<TNumber> => dt
+  sleep = (dt: TNumber): ConstantWait<TNumber> => ({ dependencies: new Set(), duration: dt, type: 'any' })
   proceduralStates: ProceduralState<TNumber>[] = []
   proceduralDependentStates: ProceduralDependentState<TNumber>[] = []
   declarativeStates: DeclarativeState<TNumber>[] = []
@@ -72,11 +67,11 @@ export class Tracker<TNumber extends number> {
       cancel: () => {
         this.declarativeStates = this.declarativeStates.filter(s => s.fn !== f)
       },
-      wait: () => duration,
+      wait: () => this.sleep(duration),
     }
   }
 
-  runProcedural = (f: ProceduralFunction<TNumber>): Task<DependencyWaitAny<TNumber>> => {
+  runProcedural = (f: ProceduralFunction<TNumber>): Task<WaitAny<TNumber, undefined>> => {
     this.proceduralStates.push({ gen: f(), waitTime: 0 as TNumber })
     return {
       cancel: () => {
@@ -85,7 +80,11 @@ export class Tracker<TNumber extends number> {
       wait: () => ({
         dependencies: new Set(f),
         type: 'any',
+        duration: undefined,
       }),
     }
   }
+
+  all = (tasks: Task<Wait<TNumber>>[]): DependencyWaitAll<TNumber> => {
+
 }
