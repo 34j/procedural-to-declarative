@@ -14,6 +14,7 @@ function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<ty
   }))
 }
 
+const eps = 1e-5
 describe('index', () => {
   describe('tracker', () => {
     it('should suspend and resume declarative', () => {
@@ -33,7 +34,6 @@ describe('index', () => {
       const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
       expect(visibleFixedTracks).toMatchSnapshot()
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
-      const eps = 1e-5
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1)
@@ -64,7 +64,7 @@ describe('index', () => {
       const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
       expect(visibleFixedTracks).toMatchSnapshot()
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
-      const eps = 1e-5
+      
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1 - eps)
@@ -109,7 +109,7 @@ describe('index', () => {
       const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
       expect(visibleFixedTracks).toMatchSnapshot()
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
-      const eps = 1e-5
+      
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1 - eps)
@@ -143,7 +143,7 @@ describe('index', () => {
       const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
       expect(visibleFixedTracks).toMatchSnapshot()
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
-      const eps = 1e-5
+      
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1 - eps)
@@ -182,7 +182,7 @@ describe('index', () => {
       const fixedTracks = compile(track)
       const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
       expect(visibleFixedTracks).toMatchSnapshot()
-      const eps = 1e-5
+      
       const compiled = (time: number) => useCompiled(track, fixedTracks, time)
       compiled(0)
       expect(x.current).toBe(0)
