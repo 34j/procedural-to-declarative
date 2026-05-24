@@ -32,13 +32,13 @@ npm install procedural-to-declarative
 
 Video generation using TypeScript is a hot topic. Typically such package requires a function that maps time to state.
 
+<!-- skip doccmd[all]: start -->
+
 ```ts
 type DeclarativeFunction<T> = (time: number) => T | undefined
 ```
 
 However, it's often more intuitive to write state transitions in a procedural way:
-
-<!-- skip doccmd[all]: start -->
 
 ```ts
 const x = useRef(0)
@@ -51,7 +51,6 @@ function proc() {
 ```
 
 However if one would like to parallelize procudual functions, it turns out to be impossible, since the passed function cannot be "blocked" to sort the procedure (inner lines).
-
 
 ```ts
 function proc() {
@@ -115,48 +114,91 @@ Our package uses the second approach.
 
 ## Usage
 
-```ts
-import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/index.ts'
+<!-- group doccmd[all]: start -->
 
+```ts
+import { plotHistory } from './plot.ts'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from './src/index.ts'
+```
+
+```ts
 const track = createTrack<number>()
+const x = useRef(track, 0)
+
 function* proc() {
-  const x = useRef(0)
   yield sleep(1)
   x.current = 1
   yield runDeclarative(track, (time) => {
     x.current = 1 + time
-  }, 1)
+  }, 1).wait()
   yield sleep(1)
   x.current += 1
   yield sleep(1)
 }
-const compiled = compile(track, proc)
+
+runProcedural(track, proc())
+const compiled = compile(track)
 ```
+
+<!-- invisible-code-block: ts
+await plotHistory(track, compiled, x, 'plots/usage-x.png', 1000)
+-->
+
+<!-- group doccmd[all]: end -->
+
+![Usage x history](plots/usage-x.png)
 
 ### Advanced Usage
 
-```ts
-import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/index.ts'
+<!-- group doccmd[all]: start -->
 
+<!-- invisible-code-block: ts
+import { plotHistory } from './plot.ts'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from './src/index.ts'
+-->
+
+```ts
 const track = createTrack<number>()
+const x = useRef(track, 0)
+const y = useRef(track, 0)
+
 function* proc() {
-  const x = useRef(0)
-  const y = useRef(0)
-  task1 = runDeclarative((time) => {
-    x.current = time
-  })
+  const task1 = runDeclarative(track, (progress) => {
+    x.current = progress
+  }, 5)
+
   function* task2Func() {
     while (true) {
+      // Unfortunately this will not work as expected because declarative function is called later (x.current is always 0 here)
       y.current += x.current
+      // This will work
+      y.current += 1
       yield sleep(1)
     }
   }
-  task2 = runProcedural(task2Func())
+  const task2 = runProcedural(track, task2Func())
+
+  yield sleep(1)
+  task1.suspend()
+  yield sleep(1)
+  task1.resume()
   yield task1.wait()
   task2.suspend()
 }
-const compiled = compile(track, proc)
+
+runProcedural(track, proc())
+const compiled = compile(track)
 ```
+
+<!-- invisible-code-block: ts
+await plotHistory(track, compiled, x, 'plots/advanced-x.png', 1000)
+await plotHistory(track, compiled, y, 'plots/advanced-y.png', 1000)
+-->
+
+<!-- group doccmd[all]: end -->
+
+![Advanced x history](plots/advanced-x.png)
+![Advanced y history](plots/advanced-y.png)
 
 ## Comparison
 
@@ -250,7 +292,6 @@ function scene() {
 [semantic-release-url]:https://github.com/semantic-release/semantic-release
 [commitizen-img]:https://img.shields.io/badge/commitizen-friendly-brightgreen.svg
 [commitizen-url]:http://commitizen.github.io/cz-cli/
-
 
 ---
 Generated from [README.md](README.md) by [`runmd`](https://github.com/broofa/runmd)

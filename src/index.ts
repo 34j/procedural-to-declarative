@@ -295,7 +295,9 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixed
       ref.current = fixedTrack.refValues.get(ref)
     }
   })
-  fixedTrack.declarativeStates.filter(s => s.progress < s.duration).forEach(s => s.f((s.progress + time - fixedTrack.time) as TNumber))
+  fixedTrack.declarativeStates.filter(s => s.progress < s.duration).forEach((s) => {
+    s.f((s.progress + (!s.suspended ? (time - fixedTrack.time) : 0)) as TNumber)
+  })
 }
 
 /**

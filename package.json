@@ -41,7 +41,7 @@
     "test:run": "vitest run --coverage --coverage.include=src --silent=false --no-color",
     "watch": "npm-run-all --race --parallel *:watch",
     "readme": "runmd README.md -o README.md --no-footer",
-    "doccmd": "doccmd -l ts -c node --temporary-file-extension .ts README.md",
+    "doccmd": "doccmd -l ts -c node --temporary-file-extension .ts  README.md",
     "update": "npm-check-updates -u",
     "semantic-release": "semantic-release"
   },
@@ -57,7 +57,6 @@
     "eslint": "10.1.0",
     "npm-run-all2": "8.0.4",
     "playwright": "1.58.2",
-    "runmd": "^2.1.1",
     "skia-canvas": "^3.0.8",
     "typedoc": "0.28.17",
     "typescript": "5.9.3",
