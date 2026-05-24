@@ -1,8 +1,8 @@
 {
   "name": "procedural-to-declarative",
-  "type": "module",
+  "type": "commonjs",
   "version": "1.0.0",
-  "description": "Minimalistic npm package template with 📦🚀semantic-release + Commitizen, CodeCov, Renovate, pre-commit + EsLint (✗🐶Husky + Lint Staged), ⚡️Vitest (✗👢Jest), 📖TypeDoc + Github Pages support. Note that this is a generated sample package.",
+  "description": "Compile procedural state transitions (do, wait, set, wait, ...) into declarative time-to-state functions (t -> do, set).",
   "author": {
     "name": "34j"
   },
