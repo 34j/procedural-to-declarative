@@ -1,6 +1,6 @@
 {
   "name": "procedural-to-declarative",
-  "type": "commonjs",
+  "type": "module",
   "version": "0.0.0",
   "description": "Minimalistic npm package template with 📦🚀semantic-release + Commitizen, CodeCov, Renovate, pre-commit + EsLint (✗🐶Husky + Lint Staged), ⚡️Vitest (✗👢Jest), 📖TypeDoc + Github Pages support. Note that this is a generated sample package.",
   "author": {
@@ -37,8 +37,11 @@
     "typedoc": "typedoc",
     "typedoc:watch": "typedoc --watch",
     "test:watch": "vitest --watch --coverage --coverage.include=src",
-    "test": "vitest --coverage --coverage.include=src",
+    "test": "vitest --coverage --coverage.include=src --silent=false",
+    "test:run": "vitest run --coverage --coverage.include=src --silent=false --no-color",
     "watch": "npm-run-all --race --parallel *:watch",
+    "readme": "runmd README.md -o README.md --no-footer",
+    "doccmd": "doccmd -l ts -c node --temporary-file-extension .ts  README.md",
     "update": "npm-check-updates -u",
     "semantic-release": "semantic-release"
   },

@@ -1,6 +1,6 @@
 shellEmulator: true
 
 trustPolicy: no-downgrade
-
 onlyBuiltDependencies:
   - msw
+  - skia-canvas
