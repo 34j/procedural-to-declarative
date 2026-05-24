@@ -122,14 +122,14 @@ import { Tracker } from 'procedural-to-declarative'
 const tracker = new Tracker<number>()
 function* proc() {
   const x = tracker.useRef(0)
-  tracker.sleep(1)
+  yield tracker.sleep(1)
   x.current = 1
   yield tracker.run((time) => {
     x.current = 1 + time
   }, 1)
-  tracker.sleep(1)
+  yield tracker.sleep(1)
   x.current += 1
-  tracker.sleep(1)
+  yield tracker.sleep(1)
 }
 const x = tracker.compile(proc)
 const eps = 1e-6

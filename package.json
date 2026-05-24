@@ -40,6 +40,7 @@
     "test": "vitest --coverage --coverage.include=src --silent=false",
     "test:run": "vitest run --coverage --coverage.include=src --silent=false --no-color",
     "watch": "npm-run-all --race --parallel *:watch",
+    "readme": "runmd README.md -o README.md",
     "update": "npm-check-updates -u",
     "semantic-release": "semantic-release"
   },
@@ -54,6 +55,7 @@
     "eslint": "10.1.0",
     "npm-run-all2": "8.0.4",
     "playwright": "1.58.2",
+    "runmd": "^2.1.1",
     "typedoc": "0.28.17",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
