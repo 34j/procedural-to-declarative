@@ -1,31 +1,66 @@
 /**
- * Procedural
+  @module
+  Compile procedural state transitions (do, wait, set, wait, ...) into declarative time-to-state functions (t -> do, set).
+ */
+
+/**
+ * Wait object.
+ *
+ * If yielded by a procedural function,
+ * in that function
+ * wait until one of the following conditions is met:
+ * - one of the dependencies is done if dependencies is defined
+ * - the duration has passed if duration is defined
  */
 export interface Wait<TNumber extends number> {
   dependencies?: Set<ProceduralFunction<Wait<TNumber>>> | undefined
   duration?: TNumber | undefined
 }
+
 /**
  * Procedural function. useRef().current can be read and written.
  */
 export type ProceduralFunction<TWait extends Wait<any>> = IterableIterator<TWait>
+
 /**
  * Declarative function. useRef().current is write-only.
  */
 export type DeclarativeFunction<TNumber extends number, T> = (time: TNumber) => T | undefined
+
+/**
+ * Reference object that can be read and written by `current` property.
+ */
 export interface Ref<T> { current: T }
+
+/**
+ * Task object that can be suspended and resumed. wait() returns a Wait object that specifies the conditions for the task to be finished.
+ */
 export interface Task<TWait extends Wait<any>>
 {
+  /**
+   * Return a Wait object that specifies the conditions for the task to be finished.
+   * @returns A Wait object that specifies the conditions for the task to be finished.
+   */
   wait: () => TWait
+  /**
+   * Suspend the task.
+   * @returns void
+   */
   suspend: () => void
+  /**
+   * Resume the task.
+   * @returns void
+   */
   resume: () => void
 }
+
 export interface ProceduralState<TNumber extends number> {
   f: ProceduralFunction<Wait<TNumber>>
   totalCallsCount: number
   wait: Wait<TNumber>
   suspended: boolean
 }
+
 export interface DeclarativeState<TNumber extends number> {
   f: DeclarativeFunction<TNumber, void>
   progress: TNumber
