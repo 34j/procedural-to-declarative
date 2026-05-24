@@ -288,9 +288,15 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
   track.declarativeStates.push(state)
   return {
     suspend: () => {
+      if (state.suspended) {
+        throw new Error('Task is already suspended.')
+      }
       state.suspended = true
     },
     resume: () => {
+      if (!state.suspended) {
+        throw new Error('Task is not suspended.')
+      }
       state.suspended = false
     },
     wait: () => sleep(duration),
@@ -309,9 +315,15 @@ export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: 
   track.proceduralStates.push(state)
   return {
     suspend: () => {
+      if (state.suspended) {
+        throw new Error('Task is already suspended.')
+      }
       state.suspended = true
     },
     resume: () => {
+      if (!state.suspended) {
+        throw new Error('Task is not suspended.')
+      }
       state.suspended = false
     },
     wait: () => ({
