@@ -52,8 +52,6 @@ jobs:
           key: lint-${{ runner.os }}-${{ steps.setup-node.outputs.node-version }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             lint-${{ runner.os }}-${{ steps.setup-node.outputs.node-version }}-pnpm-store-
-      - name: Approve builds
-        run: pnpm approve-builds --all
       - name: Install dependencies
         run: pnpm install
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
@@ -110,8 +108,6 @@ jobs:
           key: test-${{ runner.os }}-${{ steps.setup-node.outputs.node-version }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             test-${{ runner.os }}-${{ steps.setup-node.outputs.node-version }}-pnpm-store-
-      - name: Approve builds
-        run: pnpm approve-builds --all
       - name: Install dependencies
         run: pnpm install
       # https://github.com/vitest-dev/vitest-browser-react/blob/0f5098200a6d02ecd64c8a5549787c371a532bd2/.github/workflows/ci.yml#L71
@@ -169,8 +165,6 @@ jobs:
           key: release-${{ runner.os }}-${{ steps.setup-node.outputs.node-version }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             release-${{ runner.os }}-${{ steps.setup-node.outputs.node-version }}-pnpm-store-
-      - name: Approve builds
-        run: pnpm approve-builds --all
       - name: Install dependencies
         run: pnpm install
       - name: Build
