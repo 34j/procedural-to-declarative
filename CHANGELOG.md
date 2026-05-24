@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/34j/procedural-to-declarative/compare/v1.0.0...v1.0.1) (2026-05-24)
+
+
+### Bug Fixes
+
+* trigger release ([37b4b42](https://github.com/34j/procedural-to-declarative/commit/37b4b4250d9840b46a08f15b11aa52fba5608915))
+
 # 1.0.0 (2026-05-24)
 
 
