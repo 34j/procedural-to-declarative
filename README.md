@@ -244,6 +244,8 @@ export default makeProject({
 })
 ```
 
+https://github.com/user-attachments/assets/25d72e3b-c776-44c4-b28e-5ece22e5383e
+
 ### [FrameScript](https://github.com/frame-script/FrameScript)
 
 ```tsx
