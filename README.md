@@ -1,3 +1,6 @@
+<!--
+  -- This file is auto-generated from README.md. Changes should be made there.
+  -->
 
 # procedural-to-declarative
 
@@ -35,37 +38,33 @@ type DeclarativeFunction<T> = (time: number) => T | undefined
 
 However, it's often more intuitive to write state transitions in a procedural way:
 
+<!-- skip doccmd[all]: start -->
+
 ```ts
-const tracker = new Tracker()
+const x = useRef(0)
 function proc() {
-  const x = tracker.useRef(0)
-  tracker.sleep(1)
+  sleep(1)
   x.current += 1
-  tracker.sleep(1)
+  sleep(1)
   x.current += 1
 }
-compile(proc)(0) // 0
-compile(proc)(0.5) // 0
-compile(proc)(1) // 1
-compile(proc)(1.5) // 1
-compile(proc)(2) // 2
 ```
 
 However if one would like to parallelize procudual functions, it turns out to be impossible, since the passed function cannot be "blocked" to sort the procedure (inner lines).
 
+
 ```ts
-const tracker = new Tracker()
 function proc() {
-  const x = tracker.useRef(0)
-  tracker.all([
+  const x = useRef(0)
+  all([
     (() => {
-      tracker.sleep(1)
+      sleep(1)
       x.current += 1 // 00:01 (Unable to block here!)
-      tracker.sleep(2)
+      sleep(2)
       x.current += 2 // 00:03
     })(),
     (() => {
-      tracker.sleep(2)
+      sleep(2)
       x.current *= 2 // 00:02
     })(),
   ])
@@ -75,18 +74,17 @@ function proc() {
 However, if we use `async/await` or `yield` (like `motion-canvas` did), we can "block" the function and sort the procedure.
 
 ```ts
-const tracker = new Tracker()
 async function proc() {
-  const x = tracker.useRef(0)
-  await tracker.all([
+  const x = useRef(0)
+  await all([
     (() => {
-      await tracker.sleep(1) // (1)
+      await sleep(1) // (1)
       x.current += 1 // 00:01
-      await tracker.sleep(2) // Blocked until (2) is executed
+      await sleep(2) // Blocked until (2) is executed
       x.current += 2 // 00:03
     })(),
     (() => {
-      await tracker.sleep(2) // Blocked until (1) is executed (2)
+      await sleep(2) // Blocked until (1) is executed (2)
       x.current *= 2 // 00:02
     })(),
   ])
@@ -94,80 +92,75 @@ async function proc() {
 ```
 
 ```ts
-const tracker = new Tracker()
 function* proc() {
-  const x = tracker.useRef(0)
-  yield* tracker.all([
+  const x = useRef(0)
+  yield* all([
     (() => {
-      yield tracker.sleep(1) // (1)
+      yield sleep(1) // (1)
       x.current += 1 // 00:01
-      yield tracker.sleep(2) // Blocked until (2) is executed
+      yield sleep(2) // Blocked until (2) is executed
       x.current += 2 // 00:03
     })(),
     (() => {
-      yield tracker.sleep(2) // Blocked until (1) is executed (2)
+      yield sleep(2) // Blocked until (1) is executed (2)
       x.current *= 2 // 00:02
     })(),
   ])
 }
 ```
+
+<!-- skip doccmd[all]: end -->
 
 Our package uses the second approach.
 
 ## Usage
 
 ```ts
-import { Tracker } from 'procedural-to-declarative'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/index.ts'
 
-const tracker = new Tracker<number>()
+const track = createTrack<number>()
 function* proc() {
-  const x = tracker.useRef(0)
-  yield tracker.sleep(1)
+  const x = useRef(0)
+  yield sleep(1)
   x.current = 1
-  yield tracker.run((time) => {
+  yield runDeclarative(track, (time) => {
     x.current = 1 + time
   }, 1)
-  yield tracker.sleep(1)
+  yield sleep(1)
   x.current += 1
-  yield tracker.sleep(1)
+  yield sleep(1)
 }
-const x = tracker.compile(proc)
-const eps = 1e-6
-console.log(x(-eps)) // undefined
-console.log(x(0)) // 0
-console.log(x(1 - eps)) // 0
-console.log(x(1)) // 1
-console.log(x(1.5)) // 1.5
-console.log(x(2)) // 2
-console.log(x(3)) // 3
-console.log(x(4)) // 3
-console.log(x(4 + eps)) // undefined
+const compiled = compile(track, proc)
 ```
 
 ### Advanced Usage
 
 ```ts
-import { Tracker } from 'procedural-to-declarative'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/index.ts'
 
-const tracker = new Tracker<number>()
+const track = createTrack<number>()
 function* proc() {
-  const x = tracker.useRef(0)
-  const y = tracker.useRef(0)
-  task1 = tracker.run((time) => {
+  const x = useRef(0)
+  const y = useRef(0)
+  task1 = runDeclarative((time) => {
     x.current = time
   })
-  task2 = tracker.run(() => {
+  function* task2Func() {
     while (true) {
-      y.current += x
-      yield tracker.sleep(1)
+      y.current += x.current
+      yield sleep(1)
     }
-  })
-  task1.wait()
+  }
+  task2 = runProcedural(task2Func())
+  yield task1.wait()
   task2.suspend()
 }
+const compiled = compile(track, proc)
 ```
 
 ## Comparison
+
+<!-- skip doccmd[all]: start -->
 
 - From our observation, none of the existing libraries support "waiting" while video / audio is playing.
 - The comparison on the way of writing "animation" using static images is as follows:
@@ -241,6 +234,8 @@ function scene() {
 }
 ```
 
+<!-- skip doccmd[all]: end -->
+
 [build-img]:https://github.com/34j/procedural-to-declarative/actions/workflows/release.yml/badge.svg
 [build-url]:https://github.com/34j/procedural-to-declarative/actions/workflows/release.yml
 [downloads-img]:https://img.shields.io/npm/dt/procedural-to-declarative
@@ -255,3 +250,7 @@ function scene() {
 [semantic-release-url]:https://github.com/semantic-release/semantic-release
 [commitizen-img]:https://img.shields.io/badge/commitizen-friendly-brightgreen.svg
 [commitizen-url]:http://commitizen.github.io/cz-cli/
+
+
+---
+Generated from [README.md](README.md) by [`runmd`](https://github.com/broofa/runmd)

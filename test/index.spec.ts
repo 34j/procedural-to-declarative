@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/tracker'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src'
 
 function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<typeof compile<TNumber>>) {
   return fixedTracks.map(fixedTrack => ({
