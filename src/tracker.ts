@@ -122,6 +122,14 @@ export interface Track<TNumber extends number> {
    * The declarative states of the track.
    */
   declarativeStates: DeclarativeState<TNumber>[]
+  /**
+   * Whether the track is currently running a declarative function. Used to prevent procedural / declarative functions being called from a declarative function.
+   */
+  isMaterialized: boolean
+  /**
+   * Whether the track is currently compiling or evaluating. Used to prevent `compile()` and `useCompiled()` being called from procedural / declarative functions.
+   */
+  isCompilingOrEvaluating: boolean
 }
 
 /**
@@ -168,6 +176,8 @@ export function createTrack<TNumber extends number>(): Track<TNumber> {
     refs: [],
     proceduralStates: [],
     declarativeStates: [],
+    isMaterialized: false,
+    isCompilingOrEvaluating: false,
   }
 }
 
@@ -186,8 +196,13 @@ export const sleep = <TNumber extends number>(dt: TNumber): Wait<TNumber> => ({ 
  * @returns An array of fixed tracks, which are the materialized states of the track at specific times when procedural states change. Each fixed track contains the time, the values of the refs, and the procedural and declarative states at that time.
  */
 export function compile<TNumber extends number>(track: Track<TNumber>, time: TNumber = Infinity as TNumber): TrackMaterialized<TNumber>[] {
+  if (track.isCompilingOrEvaluating) {
+    throw new Error('Cannot compile while compiling or evaluating.')
+  }
   const fixedTracks: TrackMaterialized<TNumber>[] = []
   track.time = 0 as TNumber
+  track.isMaterialized = false
+  track.isCompilingOrEvaluating = true
   // Call next() of the generator with least wait time
   while (track.proceduralStates.filter(s => !s.suspended).length > 0 && track.time <= time) {
     // Next state must be the one with duration defined
@@ -251,9 +266,13 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     })
   }
 
+  // Update isRunningDeclarative
+  track.isMaterialized = true
+
   // Run remaining declarative states at the end
   // for the case where time is not Infinity
   track.declarativeStates.filter(s => s.progress < s.duration).forEach(s => s.f(s.progress))
+  track.isCompilingOrEvaluating = false
   return fixedTracks
 }
 
@@ -264,6 +283,9 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
  * @param time The time to evaluate the track at. Must be non-negative.
  */
 export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixedTracks: TrackMaterialized<TNumber>[], time: number) {
+  if (track.isCompilingOrEvaluating) {
+    throw new Error('Cannot use compiled tracks while compiling or evaluating.')
+  }
   const fixedTrack = fixedTracks.findLast(t => t.time <= time)
   if (!fixedTrack) {
     throw new Error(`No fixed track found for the given time.${time < 0 ? ' (Time cannot be negative.)' : ''}`)
@@ -277,13 +299,16 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixed
 }
 
 /**
- * Run a declarative function as a task and add it to the track.
+ * Run a declarative function as a task and add it to the track. Must not be called within another declarative function.
  * @param track The track to add the task to.
  * @param f The declarative function to run as a task. The function will be called with the progress time as the argument, and can update the refs of the track. The function will be called every time the progress time is updated until the progress time reaches the duration of the task.
  * @param duration The duration of the task. Can be Infinity for infinite duration.
  * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that specifies the duration of the task. When the task is suspended, the progress time will not be updated and the function will not be called. When the task is resumed, the progress time will continue from where it was suspended.
  */
 export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<Wait<TNumber>> {
+  if (track.isMaterialized) {
+    throw new Error('Cannot run a declarative function while another declarative function is running.')
+  }
   const state = { f, progress: 0 as TNumber, duration, suspended: false }
   track.declarativeStates.push(state)
   return {
@@ -304,12 +329,15 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
 }
 
 /**
- * Run a procedural function as a task and add it to the track.
+ * Run a procedural function as a task and add it to the track. Must not be called within a declarative function.
  * @param track The track to add the task to.
  * @param f The procedural function to run as a task. The function will be called immediately and can update the refs of the track. The function can yield Wait objects to specify the conditions for the function to be called again. When the function is suspended, it will not be called and the wait time will not be updated. When the function is resumed, it will continue from where it was suspended.
  * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that specifies the conditions for the task to be finished. When the task is suspended, the procedural function will not be called and the wait time will not be updated. When the task is resumed, the procedural function will continue from where it was suspended.
  */
 export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: ProceduralFunction<Wait<TNumber>>): Task<Wait<TNumber>> {
+  if (track.isMaterialized) {
+    throw new Error('Cannot run a procedural function while a declarative function is running.')
+  }
   // Run immediately
   const state = { f, wait: { duration: 0 as TNumber }, totalCallsCount: 0, suspended: false }
   track.proceduralStates.push(state)
