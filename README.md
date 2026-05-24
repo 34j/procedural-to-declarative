@@ -294,6 +294,3 @@ function scene() {
 [semantic-release-url]:https://github.com/semantic-release/semantic-release
 [commitizen-img]:https://img.shields.io/badge/commitizen-friendly-brightgreen.svg
 [commitizen-url]:http://commitizen.github.io/cz-cli/
-
----
-Generated from [README.md](README.md) by [`runmd`](https://github.com/broofa/runmd)

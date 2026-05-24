@@ -6,7 +6,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -14,7 +14,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -36,7 +36,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -44,7 +44,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -66,7 +66,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -74,7 +74,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 2,
         "wait": {
@@ -96,7 +96,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": true,
         "totalCallsCount": 2,
         "wait": {
@@ -104,7 +104,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 2,
         "wait": {
@@ -126,7 +126,7 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 2,
         "wait": {
@@ -166,7 +166,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -174,7 +174,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -182,7 +182,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -190,7 +190,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -212,7 +212,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -220,7 +220,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -228,7 +228,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -236,7 +236,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -258,7 +258,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -266,7 +266,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -274,7 +274,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -282,7 +282,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -304,7 +304,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -312,7 +312,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -320,7 +320,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -328,7 +328,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -350,7 +350,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -358,7 +358,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -366,7 +366,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -388,7 +388,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -396,7 +396,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -404,7 +404,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 2,
         "wait": {
@@ -426,7 +426,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -434,7 +434,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 2,
         "wait": {
@@ -456,7 +456,7 @@ exports[`index > tracker > should correctly handle all 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -496,7 +496,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -504,7 +504,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -512,7 +512,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -534,7 +534,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 0,
         "wait": {
@@ -542,7 +542,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -550,7 +550,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -572,7 +572,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -580,7 +580,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -588,7 +588,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -610,7 +610,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -618,7 +618,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
         },
       },
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -640,7 +640,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -680,7 +680,7 @@ exports[`index > tracker > should support README example 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -702,7 +702,7 @@ exports[`index > tracker > should support README example 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 2,
         "wait": {
@@ -724,14 +724,14 @@ exports[`index > tracker > should support README example 1`] = `
     "declarativeStates": [
       {
         "duration": 1,
-        "f": [Function],
+        "f": "anonymous",
         "progress": 0,
         "suspended": false,
       },
     ],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 3,
         "wait": {
@@ -753,7 +753,7 @@ exports[`index > tracker > should support README example 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 4,
         "wait": {
@@ -775,7 +775,7 @@ exports[`index > tracker > should support README example 1`] = `
     "declarativeStates": [],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 5,
         "wait": {
@@ -815,14 +815,14 @@ exports[`index > tracker > should suspend and resume declarative 1`] = `
     "declarativeStates": [
       {
         "duration": 10,
-        "f": [Function],
+        "f": "anonymous",
         "progress": 0,
         "suspended": false,
       },
     ],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 1,
         "wait": {
@@ -844,14 +844,14 @@ exports[`index > tracker > should suspend and resume declarative 1`] = `
     "declarativeStates": [
       {
         "duration": 10,
-        "f": [Function],
+        "f": "anonymous",
         "progress": 1,
         "suspended": true,
       },
     ],
     "proceduralStates": [
       {
-        "f": {},
+        "f": "anonymous",
         "suspended": false,
         "totalCallsCount": 2,
         "wait": {
@@ -873,7 +873,7 @@ exports[`index > tracker > should suspend and resume declarative 1`] = `
     "declarativeStates": [
       {
         "duration": 10,
-        "f": [Function],
+        "f": "anonymous",
         "progress": 1,
         "suspended": false,
       },

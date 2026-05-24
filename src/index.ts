@@ -208,7 +208,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     // Next state must be the one with duration defined
     const filteredStates = track.proceduralStates.filter(s => s.wait.duration !== undefined && !s.suspended)
     if (filteredStates.length === 0) {
-      throw new Error('No procedural state with dependencies not specified and wait time specified found.')
+      throw new Error(`No procedural state with dependencies not specified and wait time specified found. ${toVisibleFixedTracks(fixedTracks).map(t => JSON.stringify(t, null, 2)).join('\n')}`)
     }
 
     // State with least wait time
@@ -318,11 +318,17 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
       if (state.suspended) {
         throw new Error('Task is already suspended.')
       }
+      if (track.isMaterialized) {
+        throw new Error('Cannot suspend a declarative function while another declarative function is running.')
+      }
       state.suspended = true
     },
     resume: () => {
       if (!state.suspended) {
         throw new Error('Task is not suspended.')
+      }
+      if (track.isMaterialized) {
+        throw new Error('Cannot resume a declarative function while another declarative function is running.')
       }
       state.suspended = false
     },
@@ -348,11 +354,17 @@ export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: 
       if (state.suspended) {
         throw new Error('Task is already suspended.')
       }
+      if (track.isMaterialized) {
+        throw new Error('Cannot suspend a procedural function while a declarative function is running.')
+      }
       state.suspended = true
     },
     resume: () => {
       if (!state.suspended) {
         throw new Error('Task is not suspended.')
+      }
+      if (track.isMaterialized) {
+        throw new Error('Cannot resume a procedural function while a declarative function is running.')
       }
       state.suspended = false
     },
@@ -396,4 +408,25 @@ export function any<TNumber extends number>(tasks: Task<Wait<TNumber>>[]): Task<
       }
     },
   }
+}
+export function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<typeof compile<TNumber>>) {
+  return fixedTracks.map(fixedTrack =>
+    ({
+      ...fixedTrack,
+      proceduralStates: fixedTrack.proceduralStates.map((s) => {
+        let wait = s.wait
+        if (s.wait.dependencies) {
+          wait = { ...wait, dependencies: Array.from(wait.dependencies).map(f => f.name || 'anonymous') }
+        }
+        return { ...s, f: s.f.name || 'anonymous', wait }
+      }),
+      declarativeStates: fixedTrack.declarativeStates.map(s => ({ ...s, f: s.f.name || 'anonymous',
+      })),
+      refValues: Array.from(fixedTrack.refValues.entries(), ([ref, value]) => ({
+        key: {
+          current: ref.current,
+        },
+        value,
+      })),
+    }))
 }

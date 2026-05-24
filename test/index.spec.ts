@@ -1,17 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src'
-
-function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<typeof compile<TNumber>>) {
-  return fixedTracks.map(fixedTrack => ({
-    ...fixedTrack,
-    refValues: Array.from(fixedTrack.refValues.entries(), ([ref, value]) => ({
-      key: {
-        current: ref.current,
-      },
-      value,
-    })),
-  }))
-}
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, toVisibleFixedTracks, useCompiled, useRef } from '../src'
 
 const eps = 1e-5
 describe('index', () => {
@@ -88,6 +76,22 @@ describe('index', () => {
       taskF = runProcedural(track, f())
       taskG = runProcedural(track, g())
       expect(() => compile(track)).toThrow()
+    })
+    it('should correctly handle all with same time', () => {
+      const track = createTrack()
+      function* f() {
+        function* g() {
+          yield sleep(1)
+        }
+        function* h() {
+          yield sleep(0.4)
+        }
+        yield all(track, [runProcedural(track, g()), runProcedural(track, h())]).wait()
+      }
+      runProcedural(track, f())
+      const fixedTracks = compile(track)
+      const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
+      expect(visibleFixedTracks).toMatchSnapshot()
     })
     it('should correctly handle all', () => {
       const track = createTrack()
