@@ -13,7 +13,7 @@
  * - the duration has passed if duration is defined
  */
 export interface Wait<TNumber extends number> {
-  dependencies?: Set<ProceduralFunction<Wait<TNumber>>> | undefined
+  dependencies?: Set<Task<Wait<TNumber>>> | undefined
   duration?: TNumber | undefined
 }
 
@@ -52,6 +52,10 @@ export interface Task<TWait extends Wait<any>>
    * @returns void
    */
   resume: () => void
+  /**
+   * Whether the task is done. Used for testing purposes to check if the task is done when it should be.
+   */
+  done: boolean
 }
 
 /**
@@ -240,7 +244,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     const iteratorResult = nextState.f.next()
     if (iteratorResult.done) {
       track.proceduralStates.forEach((s) => {
-        if (s.wait.dependencies !== undefined && s.wait.dependencies.has(nextState.f)) {
+        if (s.wait.dependencies !== undefined && s.wait.dependencies.values().some(t => t.done)) {
           s.wait.duration = 0 as TNumber
           delete s.wait.dependencies
         }
@@ -314,6 +318,7 @@ export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f:
   const state = { f, progress: 0 as TNumber, duration, suspended: false }
   track.declarativeStates.push(state)
   return {
+    done: false,
     suspend: () => {
       if (state.suspended) {
         throw new Error('Task is already suspended.')
@@ -350,6 +355,7 @@ export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: 
   const state = { f, wait: { duration: 0 as TNumber }, totalCallsCount: 0, suspended: false }
   track.proceduralStates.push(state)
   return {
+    done: false,
     suspend: () => {
       if (state.suspended) {
         throw new Error('Task is already suspended.')
@@ -384,7 +390,9 @@ export function all<TNumber extends number>(track: Track<TNumber>, tasks: Task<W
   return runProcedural(
     track,
     (function* () {
-      yield* tasks.map(t => t.wait())
+      for (const t of tasks) {
+        yield t.wait()
+      }
     })(),
   )
 }
@@ -396,6 +404,7 @@ export function all<TNumber extends number>(track: Track<TNumber>, tasks: Task<W
  */
 export function any<TNumber extends number>(tasks: Task<Wait<TNumber>>[]): Task<Wait<TNumber>> {
   return {
+    done: false,
     suspend: () => tasks.forEach(t => t.suspend()),
     resume: () => tasks.forEach(t => t.resume()),
     wait: () => {
@@ -414,9 +423,9 @@ export function toVisibleFixedTracks<TNumber extends number>(fixedTracks: Return
     ({
       ...fixedTrack,
       proceduralStates: fixedTrack.proceduralStates.map((s) => {
-        let wait = s.wait
+        let wait: any = s.wait
         if (s.wait.dependencies) {
-          wait = { ...wait, dependencies: Array.from(wait.dependencies).map(f => f.name || 'anonymous') }
+          wait = { ...wait, dependencies: Array.from(s.wait.dependencies).map(f => f.name || 'anonymous') }
         }
         return { ...s, f: s.f.name || 'anonymous', wait }
       }),
