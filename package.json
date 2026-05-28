@@ -53,9 +53,11 @@
     "@vitest/browser": "4.1.0",
     "@vitest/browser-playwright": "4.1.0",
     "@vitest/coverage-v8": "4.1.0",
+    "chart.js": "^4.5.1",
     "eslint": "10.1.0",
     "npm-run-all2": "8.0.4",
     "playwright": "1.58.2",
+    "skia-canvas": "^3.0.8",
     "typedoc": "0.28.17",
     "typescript": "5.9.3",
     "vitest": "4.1.0"
