@@ -200,8 +200,8 @@ export function any<TNumber extends number>(tasks: Task<TNumber>[]): TaskAny<TNu
   return { type: 'any', tasks, isSuspended: false, done: false }
 }
 
-function processEvents<TNumber extends number>(track: Track<TNumber>): boolean {
-  let wokeUpSomeone = false
+function updateTaskDone<TNumber extends number>(track: Track<TNumber>): boolean {
+  let isSomeTaskDone = false
   for (const task of track.tasks) {
     if (task.done || task.isSuspended)
       continue
@@ -209,7 +209,7 @@ function processEvents<TNumber extends number>(track: Track<TNumber>): boolean {
     if (task.type === 'constant' || task.type === 'declarative') {
       if (task.progress >= task.duration) {
         task.done = true
-        wokeUpSomeone = true
+        isSomeTaskDone = true
       }
     }
     else if (task.type === 'func') {
@@ -223,17 +223,17 @@ function processEvents<TNumber extends number>(track: Track<TNumber>): boolean {
           registerTask(track, res.value)
           task.waitTarget = res.value
         }
-        wokeUpSomeone = true
+        isSomeTaskDone = true
       }
     }
     else if (task.type === 'any') {
       if (task.tasks.some(t => t.done)) {
         task.done = true
-        wokeUpSomeone = true
+        isSomeTaskDone = true
       }
     }
   }
-  return wokeUpSomeone
+  return isSomeTaskDone
 }
 
 /**
@@ -252,7 +252,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
   track.isCompilingOrEvaluating = true
 
   while (track.time <= time) {
-    while (processEvents(track));
+    while (updateTaskDone(track));
 
     const tasks = Array.from(track.tasks)
 
