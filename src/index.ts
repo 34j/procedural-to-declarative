@@ -193,7 +193,7 @@ export function any<TNumber extends number>(tasks: Task<TNumber>[]): TaskAny<TNu
 /**
  * Compute whether any ancestor task of the given tasks is not suppended.
  * @param tasks
- * @returns
+ * @returns A map from the given tasks to whether any ancestor task of the task is not suspended.
  */
 function updateTaskActive<TNumber extends number>(tasks: ReadonlySet<Readonly<Task<TNumber>>>): ReadonlyMap<Readonly<Task<TNumber>>, boolean> {
   const taskActive = new Map<Readonly<Task<TNumber>>, boolean>()

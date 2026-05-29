@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { all } from '../src/all.ts'
-import { any, compile, createTrack, runDeclarative, runProcedural, sleep, toVisibleFrames, useCompiled, useRef } from '../src/index.ts'
+import { all } from '../src/all'
+import { any, compile, createTrack, runDeclarative, runProcedural, sleep, toVisibleFrames, useCompiled, useRef } from '../src/index'
 
 const eps = 1e-5
 describe('index', () => {

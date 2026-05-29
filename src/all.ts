@@ -1,5 +1,5 @@
-import type { Task, TaskFunc, Track } from './index.ts'
-import { runProcedural } from './index.ts'
+import type { Task, TaskFunc, Track } from './index'
+import { runProcedural } from './index'
 
 /**
  * Run multiple tasks in parallel and return a task that is finished when all of the tasks are finished.

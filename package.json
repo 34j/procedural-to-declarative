@@ -41,7 +41,7 @@
     "test:run": "vitest run --coverage --coverage.include=src --silent=false --no-color",
     "watch": "npm-run-all --race --parallel *:watch",
     "readme": "runmd README.md -o README.md --no-footer",
-    "doccmd": "doccmd -l ts -c node --temporary-file-extension .ts  README.md",
+    "doccmd": "doccmd -l ts -c 'npx tsx' --temporary-file-extension .mts  README.md",
     "update": "npm-check-updates -u",
     "semantic-release": "semantic-release"
   },
