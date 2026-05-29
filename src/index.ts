@@ -101,14 +101,6 @@ export interface Track<TNumber extends number = number> {
 }
 
 /**
- * A lightweight snapshot of a task's state at a specific point in time.
- */
-export interface TaskSnapshot<TNumber extends number = number> {
-  done: boolean
-  progress: TNumber
-}
-
-/**
  * The materialized state of a track at a specific time.
  */
 export interface TrackMaterialized<TNumber extends number = number> {
@@ -121,9 +113,9 @@ export interface TrackMaterialized<TNumber extends number = number> {
    */
   refValues: Map<Ref<any>, any>
   /**
-   * The snapshots of the tasks at the time of the fixed track.
+   * The copied snapshots of the tasks at the time of the fixed track.
    */
-  taskSnapshots: Map<Task<TNumber>, TaskSnapshot<TNumber>>
+  taskSnapshots: Map<Task<TNumber>, Task<TNumber>>
 }
 
 /**
@@ -262,21 +254,17 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
   while (track.time <= time) {
     while (processEvents(track));
 
-    const taskSnapshots = new Map<Task<TNumber>, TaskSnapshot<TNumber>>()
-    for (const task of track.tasks) {
-      taskSnapshots.set(task, {
-        done: task.done,
-        progress: (task as any).progress ?? (0 as TNumber),
-      })
-    }
+    const tasks = Array.from(track.tasks)
 
+    // Save the current state of the track as a fixed track.
     frames.push({
       time: track.time,
       refValues: new Map(track.refs.map(ref => [ref, ref.current])),
-      taskSnapshots,
+      taskSnapshots: new Map(tasks.map(task => [task, { ...task }])),
     })
 
-    if (Array.from(track.tasks).every(t => t.done))
+    // If all tasks are done, we can stop compiling.
+    if (tasks.every(t => t.done))
       break
 
     const tasksConstantOrDeclarative = Array.from(track.tasks).filter(t => t.type === 'constant' || t.type === 'declarative')
