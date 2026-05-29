@@ -48,7 +48,7 @@ export interface TaskAny<TNumber extends number = number> extends TaskBase<'any'
  * A declarative task evaluated from elapsed time.
  */
 export interface TaskDeclarative<TNumber extends number = number> extends TaskBase<'declarative'> {
-  readonly f: Readonly<(time: TNumber) => void>
+  readonly f: (time: TNumber) => void
   readonly duration: TNumber
   progress: TNumber
 }
