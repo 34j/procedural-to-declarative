@@ -3,158 +3,33 @@
 exports[`index > tracker > should cancel and resume procedural 1`] = `
 [
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 0,
+    },
     "time": 0,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
-    "time": 0,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 2,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 1,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 1,
+    },
     "time": 1,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": true,
-        "totalCallsCount": 2,
-        "wait": {
-          "duration": 1,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 2,
-        "wait": {
-          "duration": 2,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 1,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 1,
+    },
     "time": 2,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 2,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 1,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 1,
+    },
     "time": 4,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 2,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 2,
+    },
     "time": 5,
   },
 ]
@@ -163,329 +38,39 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
 exports[`index > tracker > should correctly handle all 1`] = `
 [
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 0,
+    },
     "time": 0,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
-    "time": 0,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
-    "time": 0,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
-    "time": 0,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 1,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 1,
+    },
     "time": 1,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 2,
-        "wait": {
-          "duration": 0,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 1,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 2,
+    },
+    "time": 2,
+  },
+]
+`;
+
+exports[`index > tracker > should correctly handle all with same time 1`] = `
+[
+  {
+    "refValues": Map {},
+    "time": 0,
+  },
+  {
+    "refValues": Map {},
+    "time": 0.4,
+  },
+  {
+    "refValues": Map {},
     "time": 1,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 2,
-        "wait": {
-          "duration": 0,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 2,
-      },
-    ],
-    "time": 2,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 2,
-      },
-    ],
-    "time": 2,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 2,
-      },
-    ],
-    "time": 2,
   },
 ]
 `;
@@ -493,183 +78,16 @@ exports[`index > tracker > should correctly handle all 1`] = `
 exports[`index > tracker > should correctly handle any 1`] = `
 [
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 0,
+    },
     "time": 0,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 0,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
-    "time": 0,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
-    "time": 0,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 0,
-        },
-      },
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 1,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 3,
+    },
     "time": 1,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 3,
-      },
-    ],
-    "time": 1,
-  },
-  {
-    "declarativeStates": [],
-    "proceduralStates": [],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 2,
-      },
-    ],
-    "time": 2,
   },
 ]
 `;
@@ -677,133 +95,39 @@ exports[`index > tracker > should correctly handle any 1`] = `
 exports[`index > tracker > should support README example 1`] = `
 [
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 0,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 0,
+    },
     "time": 0,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 2,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 1,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 1,
+    },
     "time": 1,
   },
   {
-    "declarativeStates": [
-      {
-        "duration": 1,
-        "f": "anonymous",
-        "progress": 0,
-        "suspended": false,
-      },
-    ],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 3,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 1,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 1,
+    },
     "time": 2,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 4,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 1,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 2,
+    },
     "time": 3,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 5,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 2,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 3,
+    },
     "time": 4,
   },
   {
-    "declarativeStates": [],
-    "proceduralStates": [],
-    "refValues": [
-      {
-        "key": {
-          "current": 2,
-        },
-        "value": 2,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 3,
+    },
     "time": 5,
   },
 ]
@@ -812,82 +136,28 @@ exports[`index > tracker > should support README example 1`] = `
 exports[`index > tracker > should suspend and resume declarative 1`] = `
 [
   {
-    "declarativeStates": [
-      {
-        "duration": 10,
-        "f": "anonymous",
-        "progress": 0,
-        "suspended": false,
-      },
-    ],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 1,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 1,
-        },
-        "value": 0,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 0,
+    },
     "time": 0,
   },
   {
-    "declarativeStates": [
-      {
-        "duration": 10,
-        "f": "anonymous",
-        "progress": 1,
-        "suspended": true,
-      },
-    ],
-    "proceduralStates": [
-      {
-        "f": "anonymous",
-        "suspended": false,
-        "totalCallsCount": 2,
-        "wait": {
-          "duration": 1,
-        },
-      },
-    ],
-    "refValues": [
-      {
-        "key": {
-          "current": 1,
-        },
-        "value": 0,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 1,
+    },
     "time": 1,
   },
   {
-    "declarativeStates": [
-      {
-        "duration": 10,
-        "f": "anonymous",
-        "progress": 1,
-        "suspended": false,
-      },
-    ],
-    "proceduralStates": [],
-    "refValues": [
-      {
-        "key": {
-          "current": 1,
-        },
-        "value": 0,
-      },
-    ],
+    "refValues": Map {
+      "Ref" => 1,
+    },
     "time": 2,
+  },
+  {
+    "refValues": Map {
+      "Ref" => 10,
+    },
+    "time": 11,
   },
 ]
 `;
