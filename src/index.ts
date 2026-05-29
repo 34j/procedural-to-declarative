@@ -313,13 +313,15 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, frame
 
   const dt = (time - frame.time) as TNumber
   frame.taskSnapshots.values().forEach((snapshot) => {
-    if (snapshot.type === 'declarative') {
-      if (!snapshot.done && !snapshot.isSuspended) {
-        const t = snapshot.progress! + (snapshot.isSuspended ? 0 : dt) as TNumber
-        snapshot.f(t)
-      }
+    if (snapshot.type !== 'declarative') {
+      return
     }
-  })
-
+    if (snapshot.done || snapshot.progress >= snapshot.duration) {
+      return
+    }
+    const t = snapshot.progress! + (snapshot.isSuspended ? 0 : dt) as TNumber
+    snapshot.f(t)
+  },
+  )
   track.isCompilingOrEvaluating = false
 }
