@@ -120,19 +120,19 @@ exports[`index > tracker > should support README example 1`] = `
   },
   {
     "refValues": Map {
-      "Ref" => 2,
+      "Ref" => 1,
     },
     "time": 3,
   },
   {
     "refValues": Map {
-      "Ref" => 3,
+      "Ref" => 2,
     },
     "time": 4,
   },
   {
     "refValues": Map {
-      "Ref" => 3,
+      "Ref" => 2,
     },
     "time": 5,
   },
@@ -149,19 +149,19 @@ exports[`index > tracker > should suspend and resume declarative 1`] = `
   },
   {
     "refValues": Map {
-      "Ref" => 1,
+      "Ref" => 0,
     },
     "time": 1,
   },
   {
     "refValues": Map {
-      "Ref" => 1,
+      "Ref" => 0,
     },
     "time": 2,
   },
   {
     "refValues": Map {
-      "Ref" => 10,
+      "Ref" => 0,
     },
     "time": 11,
   },

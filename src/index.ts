@@ -72,11 +72,11 @@ export interface Track<TNumber extends number = number> {
    * The refs used in the procedural and declarative functions.
    * May be added to by useRef() calls.
    */
-  refs: Ref<any>[]
+  readonly refs: Ref<any>[]
   /**
    * The active or registered tasks within this track.
    */
-  tasks: Set<Task<TNumber>>
+  readonly tasks: Set<Task<TNumber>>
   /**
    * Whether the track is currently running a declarative function.
    * Used to prevent procedural / declarative functions being called from a declarative function.
