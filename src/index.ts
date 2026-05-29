@@ -270,7 +270,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
 
     // Advance the progress of the non-suspended non-done constant and declarative tasks by dt
     tasksConstantOrDeclarativeActive.forEach((task) => {
-      task.progress = (task.progress! + dt) as TNumber
+      task.progress = Math.min((task.progress! + dt) as TNumber, task.duration!) as TNumber
     })
   }
 
