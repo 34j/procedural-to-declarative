@@ -190,16 +190,16 @@ export function any<TNumber extends number>(tasks: Task<TNumber>[]): TaskAny<TNu
 }
 
 function updateTaskSuspended<TNumber extends number>(tasks: ReadonlySet<Task<TNumber>>) {
-  let isSomeTaskSuspended = false
+  let hasSomeTaskSuspended = false
   tasks.values().filter(t => t.type === 'func').filter(t => !t.done && t.isSuspended).filter(t => t.waitTarget).filter(t => !t.waitTarget!.isSuspended).forEach((t) => {
     t.waitTarget!.isSuspended = true
-    isSomeTaskSuspended = true
+    hasSomeTaskSuspended = true
   })
-  return isSomeTaskSuspended
+  return hasSomeTaskSuspended
 }
 
 function updateTaskDone<TNumber extends number>(track: Track<TNumber>): boolean {
-  let isSomeTaskDone = false
+  let hasSomeTaskDone = false
   for (const task of track.tasks) {
     if (task.done || task.isSuspended)
       continue
@@ -207,7 +207,7 @@ function updateTaskDone<TNumber extends number>(track: Track<TNumber>): boolean 
     if (task.type === 'constant' || task.type === 'declarative') {
       if (task.progress >= task.duration) {
         task.done = true
-        isSomeTaskDone = true
+        hasSomeTaskDone = true
       }
     }
     else if (task.type === 'func') {
@@ -221,17 +221,17 @@ function updateTaskDone<TNumber extends number>(track: Track<TNumber>): boolean 
           registerTask(track, res.value)
           task.waitTarget = res.value
         }
-        isSomeTaskDone = true
+        hasSomeTaskDone = true
       }
     }
     else if (task.type === 'any') {
       if (task.tasks.some(t => t.done)) {
         task.done = true
-        isSomeTaskDone = true
+        hasSomeTaskDone = true
       }
     }
   }
-  return isSomeTaskDone
+  return hasSomeTaskDone
 }
 
 /**
