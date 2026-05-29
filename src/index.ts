@@ -13,7 +13,8 @@ export interface Ref<T> { current: T }
  *
  * Waited if yielded by a procedural function.
  */
-export interface TaskBase {
+export interface TaskBase<TType extends ('constant' | 'func' | 'any' | 'declarative') = 'constant' | 'func' | 'any' | 'declarative'> {
+  type: Readonly<TType>
   isSuspended: boolean
   done: boolean
 }
@@ -21,8 +22,7 @@ export interface TaskBase {
 /**
  * A task that completes after a fixed duration.
  */
-export interface TaskConstant<TNumber extends number = number> extends TaskBase {
-  type: 'constant'
+export interface TaskConstant<TNumber extends number = number> extends TaskBase<'constant'> {
   duration: TNumber
   progress: TNumber
 }
@@ -32,8 +32,7 @@ export type ProceduralFunction<TNumber extends number> = IterableIterator<Task<T
 /**
  * A procedural task that advances by yielding waits.
  */
-export interface TaskFunc<TNumber extends number = number> extends TaskBase {
-  type: 'func'
+export interface TaskFunc<TNumber extends number = number> extends TaskBase<'func'> {
   f: ProceduralFunction<TNumber>
   waitTarget?: Task<TNumber> | undefined
 }
@@ -41,24 +40,15 @@ export interface TaskFunc<TNumber extends number = number> extends TaskBase {
 /**
  * A composite task that finishes when any child finishes.
  */
-export interface TaskAny<TNumber extends number = number> extends TaskBase {
+export interface TaskAny<TNumber extends number = number> extends TaskBase<'any'> {
   type: 'any'
-  tasks: Task<TNumber>[]
-}
-
-/**
- * A composite task that finishes when all children finish.
- */
-export interface TaskAll<TNumber extends number = number> extends TaskBase {
-  type: 'all'
   tasks: Task<TNumber>[]
 }
 
 /**
  * A declarative task evaluated from elapsed time.
  */
-export interface TaskDeclarative<TNumber extends number = number> extends TaskBase {
-  type: 'declarative'
+export interface TaskDeclarative<TNumber extends number = number> extends TaskBase<'declarative'> {
   f: (time: TNumber) => void
   duration: TNumber
   progress: TNumber
