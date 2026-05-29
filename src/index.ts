@@ -96,15 +96,15 @@ export interface TrackMaterialized<TNumber extends number = number> {
   /**
    * The time of the fixed track.
    */
-  time: TNumber
+  readonly time: TNumber
   /**
    * The values of the refs at the time of the fixed track.
    */
-  refValues: Map<Ref<any>, any>
+  readonly refValues: ReadonlyMap<Readonly<Ref<any>>, Readonly<any>>
   /**
    * The copied snapshots of the tasks at the time of the fixed track.
    */
-  taskSnapshots: Map<Task<TNumber>, Task<TNumber>>
+  readonly taskSnapshots: ReadonlyMap<Readonly<Task<TNumber>>, Readonly<Task<TNumber>>>
 }
 
 /**
