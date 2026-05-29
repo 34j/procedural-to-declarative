@@ -189,6 +189,15 @@ export function any<TNumber extends number>(tasks: Task<TNumber>[]): TaskAny<TNu
   return { type: 'any', tasks, isSuspended: false, done: false }
 }
 
+function updateTaskSuspended<TNumber extends number>(tasks: ReadonlySet<Task<TNumber>>) {
+  let isSomeTaskSuspended = false
+  tasks.values().filter(t => t.type === 'func').filter(t => !t.done && t.isSuspended).filter(t => t.waitTarget).filter(t => !t.waitTarget!.isSuspended).forEach((t) => {
+    t.waitTarget!.isSuspended = true
+    isSomeTaskSuspended = true
+  })
+  return isSomeTaskSuspended
+}
+
 function updateTaskDone<TNumber extends number>(track: Track<TNumber>): boolean {
   let isSomeTaskDone = false
   for (const task of track.tasks) {
@@ -241,7 +250,9 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
   track.isCompilingOrEvaluating = true
 
   while (track.time <= time) {
-    while (updateTaskDone(track));
+    while (updateTaskDone(track)) {
+      while (updateTaskSuspended(track));
+    }
 
     const tasks = Array.from(track.tasks)
 
