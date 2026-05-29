@@ -10,15 +10,15 @@ import { useCompiled } from './src/index.ts'
 
 export async function plotHistory<TNumber extends number>(
   track: Track<TNumber>,
-  fixedTracks: TrackMaterialized<TNumber>[],
+  frames: TrackMaterialized<TNumber>[],
   ref: Ref<number>,
   filePath: string,
   numPoints: number,
 ): Promise<void> {
-  const maxTime = fixedTracks.length > 0 ? Number(fixedTracks.at(-1)!.time) : 0
+  const maxTime = frames.length > 0 ? Number(frames.at(-1)!.time) : 0
   const points = Array.from({ length: numPoints }).flatMap((_, i) => {
     const time = numPoints > 1 ? (maxTime * i) / (numPoints - 1) : 0
-    useCompiled(track, fixedTracks, time)
+    useCompiled(track, frames, time)
     return typeof ref.current === 'number' ? [{ x: time, y: ref.current }] : []
   })
 

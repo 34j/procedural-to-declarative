@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, toVisibleFixedTracks, useCompiled, useRef } from '../src'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, toVisibleFrames, useCompiled, useRef } from '../src'
 
 const eps = 1e-5
 describe('index', () => {
@@ -17,10 +17,10 @@ describe('index', () => {
         task.isSuspended = false
       }
       runProcedural(track, f())
-      const fixedTracks = compile(track)
-      const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
-      expect(visibleFixedTracks).toMatchSnapshot()
-      const compiled = (time: number) => useCompiled(track, fixedTracks, time)
+      const frames = compile(track)
+      const visibleFrames = toVisibleFrames(frames)
+      expect(visibleFrames).toMatchSnapshot()
+      const compiled = (time: number) => useCompiled(track, frames, time)
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1)
@@ -47,10 +47,10 @@ describe('index', () => {
         x.current = 2
       }
       runProcedural(track, f())
-      const fixedTracks = compile(track)
-      const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
-      expect(visibleFixedTracks).toMatchSnapshot()
-      const compiled = (time: number) => useCompiled(track, fixedTracks, time)
+      const frames = compile(track)
+      const visibleFrames = toVisibleFrames(frames)
+      expect(visibleFrames).toMatchSnapshot()
+      const compiled = (time: number) => useCompiled(track, frames, time)
 
       compiled(0)
       expect(x.current).toBe(0)
@@ -89,9 +89,9 @@ describe('index', () => {
         yield all(track, [runProcedural(track, g()), runProcedural(track, h())])
       }
       runProcedural(track, f())
-      const fixedTracks = compile(track)
-      const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
-      expect(visibleFixedTracks).toMatchSnapshot()
+      const frames = compile(track)
+      const visibleFrames = toVisibleFrames(frames)
+      expect(visibleFrames).toMatchSnapshot()
     })
     it('should correctly handle all', () => {
       const track = createTrack()
@@ -108,10 +108,10 @@ describe('index', () => {
         yield all(track, [runProcedural(track, g()), runProcedural(track, h())])
       }
       runProcedural(track, f())
-      const fixedTracks = compile(track)
-      const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
-      expect(visibleFixedTracks).toMatchSnapshot()
-      const compiled = (time: number) => useCompiled(track, fixedTracks, time)
+      const frames = compile(track)
+      const visibleFrames = toVisibleFrames(frames)
+      expect(visibleFrames).toMatchSnapshot()
+      const compiled = (time: number) => useCompiled(track, frames, time)
 
       compiled(0)
       expect(x.current).toBe(0)
@@ -142,10 +142,10 @@ describe('index', () => {
         x.current = 3
       }
       runProcedural(track, f())
-      const fixedTracks = compile(track)
-      const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
-      expect(visibleFixedTracks).toMatchSnapshot()
-      const compiled = (time: number) => useCompiled(track, fixedTracks, time)
+      const frames = compile(track)
+      const visibleFrames = toVisibleFrames(frames)
+      expect(visibleFrames).toMatchSnapshot()
+      const compiled = (time: number) => useCompiled(track, frames, time)
 
       compiled(0)
       expect(x.current).toBe(0)
@@ -182,11 +182,11 @@ describe('index', () => {
         expect(track.time).toBe(5)
       }
       runProcedural(track, f())
-      const fixedTracks = compile(track)
-      const visibleFixedTracks = toVisibleFixedTracks(fixedTracks)
-      expect(visibleFixedTracks).toMatchSnapshot()
+      const frames = compile(track)
+      const visibleFrames = toVisibleFrames(frames)
+      expect(visibleFrames).toMatchSnapshot()
 
-      const compiled = (time: number) => useCompiled(track, fixedTracks, time)
+      const compiled = (time: number) => useCompiled(track, frames, time)
       compiled(0)
       expect(x.current).toBe(0)
       compiled(1 - eps)
