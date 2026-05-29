@@ -312,22 +312,25 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, frame
     throw new Error('Cannot evaluate while compiling or evaluating.')
   track.isCompilingOrEvaluating = true
 
-  const fixedTrack = frames.findLast(frame => frame.time <= time)
-  if (!fixedTrack) {
+  const frame = frames.findLast(frame => frame.time <= time)
+  if (!frame) {
     track.isCompilingOrEvaluating = false
     throw new Error('No fixed track found for the given time.')
   }
 
   track.refs.forEach((ref) => {
-    ref.current = fixedTrack.refValues.get(ref)
+    ref.current = frame.refValues.get(ref)
   })
 
-  const dt = (time - fixedTrack.time) as TNumber
-  for (const [task, snapshot] of fixedTrack.taskSnapshots.entries()) {
-    if (task.type === 'declarative' && !task.isSuspended && !snapshot.done) {
-      task.f(Math.min(snapshot.progress + dt, task.duration) as TNumber)
+  const dt = (time - frame.time) as TNumber
+  frame.taskSnapshots.values().forEach((snapshot) => {
+    if (snapshot.type === 'declarative') {
+      if (!snapshot.done && !snapshot.isSuspended) {
+        const t = snapshot.progress! + (snapshot.isSuspended ? 0 : dt) as TNumber
+        snapshot.f(t)
+      }
     }
-  }
+  })
 
   track.isCompilingOrEvaluating = false
 }
