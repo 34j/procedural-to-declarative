@@ -17,6 +17,7 @@ export interface TaskBase<TType extends ('constant' | 'func' | 'any' | 'declarat
   readonly type: TType
   isSuspended: boolean
   done: boolean
+  calledBy?: TaskFunc<any> | undefined
 }
 
 /**
@@ -189,21 +190,24 @@ export function any<TNumber extends number>(tasks: Task<TNumber>[]): TaskAny<TNu
   return { type: 'any', tasks, isSuspended: false, done: false }
 }
 
-function updateTaskSuspended<TNumber extends number>(tasks: ReadonlySet<Task<TNumber>>) {
-  let hasSomeTaskSuspended = false
-  tasks.values().filter(t => t.type === 'func').filter(t => !t.done && t.isSuspended).filter(t => t.waitTarget).filter(t => !t.waitTarget!.isSuspended).forEach((t) => {
-    t.waitTarget!.isSuspended = true
-    hasSomeTaskSuspended = true
-  })
-  return hasSomeTaskSuspended
+/**
+ * Compute whether any ancestor task of the given tasks is not suppended.
+ * @param tasks
+ * @returns
+ */
+function updateTaskActive<TNumber extends number>(tasks: ReadonlySet<Readonly<Task<TNumber>>>): ReadonlyMap<Readonly<Task<TNumber>>, boolean> {
+  const taskActive = new Map<Task<TNumber>, boolean>(
+    Array.from(tasks).map(t => [t, !t.isSuspended && !t.done]),
+  )
+  return taskActive
 }
 
 function updateTaskDone<TNumber extends number>(track: Track<TNumber>): boolean {
   let hasSomeTaskDone = false
+  const tasksActive = updateTaskActive(track.tasks)
   for (const task of track.tasks) {
-    if (task.done || task.isSuspended)
+    if (!tasksActive.get(task)!)
       continue
-
     if (task.type === 'constant' || task.type === 'declarative') {
       if (task.progress >= task.duration) {
         task.done = true
@@ -220,6 +224,7 @@ function updateTaskDone<TNumber extends number>(track: Track<TNumber>): boolean 
         else {
           registerTask(track, res.value)
           task.waitTarget = res.value
+          task.waitTarget.calledBy = task
         }
         hasSomeTaskDone = true
       }
@@ -250,11 +255,10 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
   track.isCompilingOrEvaluating = true
 
   while (track.time <= time) {
-    while (updateTaskDone(track)) {
-      while (updateTaskSuspended(track.tasks));
-    }
+    while (updateTaskDone(track));
 
     const tasks = Array.from(track.tasks)
+    const tasksActive = updateTaskActive(track.tasks)
 
     // Save the current state of the track as a fixed track.
     frames.push({
@@ -267,14 +271,13 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     if (tasks.every(t => t.done || t.isSuspended))
       break
 
-    const tasksConstantOrDeclarative = Array.from(track.tasks).filter(t => t.type === 'constant' || t.type === 'declarative')
-    const tasksConstantOrDeclarativeActive = tasksConstantOrDeclarative.filter(t => !t.done && !t.isSuspended)
+    const tasksConstantOrDeclarativeActive = Array.from(track.tasks).filter(t => !tasksActive.get(t)!).filter(t => t.type === 'constant' || t.type === 'declarative')
 
     // Find the minimum time to advance among the non-suspended non-done constant and declarative tasks, which is the time to the next event.
     const dt = Math.min(...tasksConstantOrDeclarativeActive.map(t => (t.duration! - t.progress!) as TNumber), Infinity as TNumber)
 
     if (dt === Infinity)
-      throw new Error('There is no progress to be made, but there are still unfinished tasks. This may be caused by all unfinished tasks being suspended, or by a deadlock in the procedural functions.')
+      throw new Error(`There is no progress to be made, but there are still unfinished tasks. This may be caused by all unfinished tasks being suspended, or by a deadlock in the procedural functions.` + ` Unfinished tasks: ${tasks.filter(t => !(t.done || t.isSuspended)).map(t => JSON.stringify(t)).join(', ')}`)
 
     // Advance time by dt
     track.time = (track.time + dt) as TNumber

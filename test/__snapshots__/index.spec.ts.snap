@@ -1,5 +1,16 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`index > tracker > should cancel and resume procedural 1`] = `
+[
+  {
+    "refValues": Map {
+      "Ref" => 0,
+    },
+    "time": 0,
+  },
+]
+`;
+
 exports[`index > tracker > should correctly handle all 1`] = `
 [
   {
