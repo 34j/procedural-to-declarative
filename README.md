@@ -114,21 +114,7 @@ Our package uses the second approach.
 
 ## Usage
 
-- `Track` is the main data structure and tracks everything.
-- `Task` is the main concept of this package.
-- `Ref` (`useRef`) registers a mutable reference to the track.
-- 2 type of functions exist:
-  - Procedural function (`IterableIterator<Task>`): `Ref` is read-write.
-  - Declarative function (`(time: number) => void`): `Ref` is write-only.
-- `compile` compiles the top-level procedural function into array of `TrackMaterialized`, which is a fixed `Track` at each time point.
-- `useCompiled` converts `TrackMaterialized` into a declarative function as a final output.
-- `Task` has 4 types:
-  - `TaskConstant`: returned by `sleep`, it just blocks for the specified time.
-  - `TaskProcedural`: returned by `runProcedural`, it blocks until the provided procedural function is completed.
-  - `TaskDeclarative`: returned by `runDeclarative`, it blocks until the provided declarative function is completed.
-  - `TaskAny`: returned by `any`, if `yield`ed, it blocks until any of the provided tasks is completed.
-- `Task`s can be suspended and resumed by setting `isSuspended` property to `true` and `false`.
-  - If `TaskProcedural` is suspended, all successor `Task`s invoked by the procedural function will also be suspended until the `TaskProcedural` is resumed.
+### Simple Usage
 
 <!-- group doccmd[all]: start -->
 
@@ -168,9 +154,27 @@ await plotHistory(track, compiled, x, 'plots/usage-x.png', 1000)
 
 <!-- group doccmd[all]: end -->
 
-### `x` history
+#### `x` history
 
 ![Usage x history](plots/usage-x.png)
+
+### Description
+
+- `Track` is the main data structure and tracks everything.
+- `Task` is the main concept of this package.
+- `Ref` (`useRef`) registers a mutable reference to the track.
+- 2 type of functions exist:
+  - Procedural function (`IterableIterator<Task>`): `Ref` is read-write.
+  - Declarative function (`(time: number) => void`): `Ref` is write-only.
+- `compile` compiles the top-level procedural function into array of `TrackMaterialized`, which is a fixed `Track` at each time point.
+- `useCompiled` converts `TrackMaterialized` into a declarative function as a final output.
+- `Task` has 4 types:
+  - `TaskConstant`: returned by `sleep`. if `yield`ed, it just blocks for the specified time.
+  - `TaskProcedural`: returned by `runProcedural`. if `yield`ed, it blocks until the provided procedural function is completed.
+  - `TaskDeclarative`: returned by `runDeclarative`. if `yield`ed, it blocks until the provided declarative function is completed.
+  - `TaskAny`: returned by `any`. if `yield`ed, it blocks until any of the provided tasks is completed.
+- `Task`s can be suspended and resumed by setting `isSuspended` property to `true` and `false`.
+  - If `TaskProcedural` is suspended, all successor `Task`s invoked by the procedural function will also be suspended until the `TaskProcedural` is resumed.
 
 ### Advanced Usage
 
@@ -223,11 +227,11 @@ await plotHistory(track, compiled, y, 'plots/advanced-y.png', 1000)
 
 <!-- group doccmd[all]: end -->
 
-### `x` history
+#### `x` history
 
 ![Advanced x history](plots/advanced-x.png)
 
-### `y` history
+#### `y` history
 
 ![Advanced y history](plots/advanced-y.png)
 
@@ -238,7 +242,7 @@ await plotHistory(track, compiled, y, 'plots/advanced-y.png', 1000)
 - From our observation, none of the existing libraries support "waiting" while video / audio is playing.
 - The comparison on the way of writing "animation" using static images is as follows:
 
-### Motion Canvas / Revideo
+### [Motion Canvas](https://github.com/motion-canvas/motion-canvas) / [Revideo](https://github.com/midrender/revideo)
 
 ```tsx
 import { Circle, makeScene2D, } from '@revideo/2d'
