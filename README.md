@@ -35,7 +35,7 @@ Video generation using TypeScript is a hot topic. Typically such package require
 <!-- skip doccmd[all]: start -->
 
 ```ts
-type DeclarativeFunction<T> = (time: number) => T | undefined
+type DeclarativeFunction<T> = (time: number) => T
 ```
 
 However, it's often more intuitive to write state transitions in a procedural way:
@@ -116,10 +116,16 @@ Our package uses the second approach.
 
 <!-- group doccmd[all]: start -->
 
+<!-- skip doccmd[all]: next -->
+
 ```ts
-import { plotHistory } from './plot.ts'
-import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from './src/index.ts'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from 'procedural-to-declarative'
 ```
+
+<!-- invisible-code-block: ts
+import { plotHistory } from '../plot'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/index'
+-->
 
 ```ts
 const track = createTrack<number>()
@@ -130,7 +136,7 @@ function* proc() {
   x.current = 1
   yield runDeclarative(track, (time) => {
     x.current = 1 + time
-  }, 1).wait()
+  }, 1)
   yield sleep(1)
   x.current += 1
   yield sleep(1)
@@ -153,8 +159,8 @@ await plotHistory(track, compiled, x, 'plots/usage-x.png', 1000)
 <!-- group doccmd[all]: start -->
 
 <!-- invisible-code-block: ts
-import { plotHistory } from './plot.ts'
-import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from './src/index.ts'
+import { plotHistory } from '../plot'
+import { all, any, compile, createTrack, runDeclarative, runProcedural, sleep, useCompiled, useRef } from '../src/index'
 -->
 
 ```ts
@@ -179,11 +185,11 @@ function* proc() {
   const task2 = runProcedural(track, task2Func())
 
   yield sleep(1)
-  task1.suspend()
+  task1.isSuspended = true
   yield sleep(1)
-  task1.resume()
-  yield task1.wait()
-  task2.suspend()
+  task1.isSuspended = false
+  yield task1
+  task2.isSuspended = true
 }
 
 runProcedural(track, proc())
@@ -294,6 +300,3 @@ function scene() {
 [semantic-release-url]:https://github.com/semantic-release/semantic-release
 [commitizen-img]:https://img.shields.io/badge/commitizen-friendly-brightgreen.svg
 [commitizen-url]:http://commitizen.github.io/cz-cli/
-
----
-Generated from [README.md](README.md) by [`runmd`](https://github.com/broofa/runmd)
