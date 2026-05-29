@@ -130,7 +130,7 @@ function* proc() {
   x.current = 1
   yield runDeclarative(track, (time) => {
     x.current = 1 + time
-  }, 1).wait()
+  }, 1)
   yield sleep(1)
   x.current += 1
   yield sleep(1)
@@ -182,7 +182,7 @@ function* proc() {
   task1.suspend()
   yield sleep(1)
   task1.resume()
-  yield task1.wait()
+  yield task1
   task2.suspend()
 }
 

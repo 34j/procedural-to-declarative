@@ -4,111 +4,76 @@
  */
 
 /**
- * Wait object.
- *
- * If yielded by a procedural function,
- * in that function
- * wait until one of the following conditions is met:
- * - one of the dependencies is done if dependencies is defined
- * - the duration has passed if duration is defined
- */
-export interface Wait<TNumber extends number> {
-  dependencies?: Set<Task<Wait<TNumber>>> | undefined
-  duration?: TNumber | undefined
-}
-
-/**
- * Procedural function. useRef().current can be read and written.
- */
-export type ProceduralFunction<TWait extends Wait<any>> = IterableIterator<TWait>
-
-/**
- * Declarative function. useRef().current is write-only.
- */
-export type DeclarativeFunction<TNumber extends number, T> = (time: TNumber) => T | undefined
-
-/**
- * Reference object that can be read and written by `current` property.
+ * Reference object that can be read and written through `current`.
  */
 export interface Ref<T> { current: T }
 
 /**
- * Task object that can be suspended and resumed. wait() returns a Wait object that specifies the conditions for the task to be finished.
+ * Task object.
+ *
+ * Waited if yielded by a procedural function.
  */
-export interface Task<TWait extends Wait<any>>
-{
-  /**
-   * Return a Wait object that specifies the conditions for the task to be finished.
-   * @returns A Wait object that specifies the conditions for the task to be finished.
-   */
-  wait: () => TWait
-  /**
-   * Suspend the task.
-   * @returns void
-   */
-  suspend: () => void
-  /**
-   * Resume the task.
-   * @returns void
-   */
-  resume: () => void
-  /**
-   * Whether the task is done. Used for testing purposes to check if the task is done when it should be.
-   */
-  done: boolean
+export type Task<TNumber extends number = number>
+  = | TaskConstant<TNumber>
+    | TaskFunc<TNumber>
+    | TaskAny<TNumber>
+    | TaskDeclarative<TNumber>
+
+export interface TaskBase<TNumber extends number = number> {
+  _type?: TNumber
+  _track?: Track<TNumber>
+  _isSuspended?: boolean
+  _suspensionMode?: 'propagate' | 'local'
+  isSuspended: boolean
+  wait: () => Task<TNumber>
 }
 
 /**
- * The state of a procedural function controlled by the track.
+ * A task that completes after a fixed duration.
  */
-export interface ProceduralState<TNumber extends number> {
-  /**
-   * The procedural function.
-   */
-  f: ProceduralFunction<Wait<TNumber>>
-  /**
-   * The number of `next()` calls made to the procedural function.
-   */
-  totalCallsCount: number
-  /**
-   * The wait object returned by the last `next()` call to the procedural function.
-   */
-  wait: Wait<TNumber>
-  /**
-   * Whether the procedural function is suspended.
-   * If suspended, the procedural function will not be called and the wait time will not be updated.
-   * When resumed, the procedural function will continue from where it was suspended.
-   */
-  suspended: boolean
+export interface TaskConstant<TNumber extends number = number> extends TaskBase<TNumber> {
+  type: 'constant'
+  duration: TNumber
 }
 
-export interface DeclarativeState<TNumber extends number> {
-  /**
-   * The declarative function.
-   */
-  f: DeclarativeFunction<TNumber, void>
-  /**
-   * The total time that the declarative function has been running.
-   */
-  progress: TNumber
-  /**
-   * The total duration of the declarative function.
-   * Can be Infinity for infinite duration.
-   */
-  duration: TNumber
-  /**
-   * Whether the declarative function is suspended.
-   * If suspended, the progress of the declarative function will not be updated and the function will not be called.
-   * When resumed, the progress will continue from where it was suspended.
-   */
-  suspended: boolean
+export type ProceduralFunction<TNumber extends number> = IterableIterator<Task<TNumber>>
+
+/**
+ * A procedural task that advances by yielding waits.
+ */
+export interface TaskFunc<TNumber extends number = number> extends TaskBase<TNumber> {
+  type: 'func'
+  f: ProceduralFunction<TNumber>
 }
+
+/**
+ * A composite task that finishes when any child finishes.
+ */
+export interface TaskAny<TNumber extends number = number> extends TaskBase<TNumber> {
+  type: 'any'
+  tasks: Task<TNumber>[]
+}
+
+/**
+ * A declarative task evaluated from elapsed time.
+ */
+export interface TaskDeclarative<TNumber extends number = number> extends TaskBase<TNumber> {
+  type: 'declarative'
+  f: (time: TNumber) => void
+  duration: TNumber
+}
+
+export type ProcessState<TNumber extends number = number>
+  = | { type: 'constant', done: boolean, suspended: boolean, progress: TNumber }
+    | { type: 'func', done: boolean, suspended: boolean, waitTarget: Task<TNumber> | undefined }
+    | { type: 'any', done: boolean, suspended: boolean, tasks: Task<TNumber>[] }
+    | { type: 'declarative', done: boolean, suspended: boolean, progress: TNumber }
 
 /**
  * The data structure that tracks the procedural and declarative states of a system.
  * Used to compile procedural state transitions into declarative time-to-state functions.
  */
-export interface Track<TNumber extends number> {
+export interface Track<TNumber extends number = number> {
   /**
    * The current time of the track used when compiling.
    */
@@ -118,14 +83,7 @@ export interface Track<TNumber extends number> {
    * May be added to by useRef() calls.
    */
   refs: Ref<any>[]
-  /**
-   * The procedural states of the track.
-   */
-  proceduralStates: ProceduralState<TNumber>[]
-  /**
-   * The declarative states of the track.
-   */
-  declarativeStates: DeclarativeState<TNumber>[]
+  states: Map<Task<TNumber>, ProcessState<TNumber>>
   /**
    * Whether the track is currently running a declarative function. Used to prevent procedural / declarative functions being called from a declarative function.
    */
@@ -137,9 +95,9 @@ export interface Track<TNumber extends number> {
 }
 
 /**
- * The materialized state of the track at a specific time.
+ * The materialized state of a track at a specific time.
  */
-export interface TrackMaterialized<TNumber extends number> {
+export interface TrackMaterialized<TNumber extends number = number> {
   /**
    * The time of the fixed track.
    */
@@ -149,13 +107,17 @@ export interface TrackMaterialized<TNumber extends number> {
    */
   refValues: Map<Ref<any>, any>
   /**
-   * The deepcopied procedural states of the track at the time of the fixed track.
+   * The copied states of the track at the time of the fixed track.
    */
-  proceduralStates: ProceduralState<TNumber>[]
-  /**
-   * The deepcopied declarative states of the track at the time of the fixed track.
-   */
-  declarativeStates: DeclarativeState<TNumber>[]
+  states: Map<Task<TNumber>, ProcessState<TNumber>>
+}
+
+/**
+ * Create an empty track.
+ * @returns An empty track.
+ */
+export function createTrack<TNumber extends number = number>(): Track<TNumber> {
+  return { time: 0 as TNumber, refs: [], states: new Map(), isCompilingOrEvaluating: false, isMaterialized: false }
 }
 
 /**
@@ -164,34 +126,257 @@ export interface TrackMaterialized<TNumber extends number> {
  * @param v The initial value of the ref.
  * @returns The created ref.
  */
-export function useRef<T>(track: Track<any>, v: T): Ref<T> {
+export function useRef<T, TNumber extends number = number>(track: Track<TNumber>, v: T): Ref<T> {
+  if (track.isMaterialized || track.isCompilingOrEvaluating) {
+    throw new Error('Cannot add a ref while compiling or evaluating.')
+  }
   const ref = { current: v }
   track.refs.push(ref)
   return ref
 }
 
-/**
- * Create an empty track.
- * @returns An empty track.
- */
-export function createTrack<TNumber extends number>(): Track<TNumber> {
-  return {
-    time: 0 as TNumber,
-    refs: [],
-    proceduralStates: [],
-    declarativeStates: [],
-    isMaterialized: false,
-    isCompilingOrEvaluating: false,
+function installSuspensionProperty<TNumber extends number>(task: TaskBase<TNumber>) {
+  Object.defineProperty(task, 'isSuspended', {
+    get() {
+      return task._isSuspended ?? false
+    },
+    set(value: boolean) {
+      if (task._isSuspended === value)
+        return
+      task._isSuspended = value
+      const taskTrack = task._track
+      if (taskTrack) {
+        setTaskSuspended(taskTrack, task as Task<TNumber>, value)
+      }
+    },
+    enumerable: true,
+    configurable: true,
+  })
+}
+
+function registerTask<TNumber extends number>(track: Track<TNumber>, task: Task<TNumber>, visited = new Set<Task<TNumber>>()) {
+  if (visited.has(task))
+    return
+  visited.add(task)
+
+  task._track = track
+  if (track.states.has(task))
+    return
+
+  if (task.type === 'constant') {
+    track.states.set(task, { type: 'constant', done: false, suspended: Boolean(task._isSuspended), progress: 0 as TNumber })
+  }
+  else if (task.type === 'func') {
+    track.states.set(task, { type: 'func', done: false, suspended: Boolean(task._isSuspended), waitTarget: undefined })
+  }
+  else if (task.type === 'any') {
+    track.states.set(task, { type: 'any', done: false, suspended: Boolean(task._isSuspended), tasks: task.tasks })
+    for (const child of task.tasks) {
+      registerTask(track, child, visited)
+    }
+  }
+  else if (task.type === 'declarative') {
+    track.states.set(task, { type: 'declarative', done: false, suspended: Boolean(task._isSuspended), progress: 0 as TNumber })
+  }
+
+  if (task._isSuspended) {
+    setTaskSuspended(track, task, true, visited)
   }
 }
 
 /**
  * Sleep for a specified duration.
- * Can be yielded by a procedural function to wait for the specified duration.
- * @param dt The duration to sleep for.
- * @returns A Wait object that specifies the duration to sleep for.
+ * @param duration The duration to sleep for.
  */
-export const sleep = <TNumber extends number>(dt: TNumber): Wait<TNumber> => ({ duration: dt })
+export function sleep<TNumber extends number = number>(duration: TNumber | number): TaskConstant<TNumber> {
+  const task = {
+    type: 'constant',
+    duration: duration as TNumber,
+    _isSuspended: false,
+    _suspensionMode: 'local' as const,
+    wait: () => task,
+  } as TaskConstant<TNumber>
+  installSuspensionProperty(task)
+  return task
+}
+
+/**
+ * Run a procedural function as a task and add it to the track. Must not be called within a declarative function.
+ * @param track The track to add the task to.
+ * @param f The procedural function to run as a task. The function will be called immediately and can update the refs of the track. The function can yield Wait objects to specify the conditions for the function to be called again. When the function is suspended, it will not be called and the wait time will not be updated. When the function is resumed, it will continue from where it was suspended.
+ * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that specifies the conditions for the task to be finished. When the task is suspended, the procedural function will not be called and the wait time will not be updated. When the task is resumed, the procedural function will continue from where it was suspended.
+ */
+export function runProcedural<TNumber extends number = number>(track: Track<TNumber>, f: ProceduralFunction<TNumber>, suspensionMode: 'propagate' | 'local' = 'propagate'): TaskFunc<TNumber> {
+  if (track.isMaterialized) {
+    throw new Error('Cannot run a procedural function while materialized.')
+  }
+  const task = {
+    type: 'func',
+    f,
+    _track: track,
+    _isSuspended: false,
+    _suspensionMode: suspensionMode,
+    wait: () => task,
+  } as TaskFunc<TNumber>
+  installSuspensionProperty(task)
+  registerTask(track, task)
+  return task
+}
+
+/**
+ * Run a declarative function as a task and add it to the track. Must not be called within another declarative function.
+ * @param track The track to add the task to.
+ * @param f The declarative function to run as a task. The function will be called with the progress time as the argument, and can update the refs of the track. The function will be called every time the progress time is updated until the progress time reaches the duration of the task.
+ * @param duration The duration of the task. Can be Infinity for infinite duration.
+ * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that specifies the duration of the task. When the task is suspended, the progress time will not be updated and the function will not be called. When the task is resumed, the progress time will continue from where it was suspended.
+ */
+export function runDeclarative<TNumber extends number = number>(track: Track<TNumber>, f: (time: TNumber) => void, duration: TNumber | number): TaskDeclarative<TNumber> {
+  if (track.isMaterialized) {
+    throw new Error('Cannot run a declarative function while materialized.')
+  }
+  const task = {
+    type: 'declarative',
+    f,
+    duration: duration as TNumber,
+    _track: track,
+    _isSuspended: false,
+    _suspensionMode: 'local' as const,
+    wait: () => task,
+  } as TaskDeclarative<TNumber>
+  installSuspensionProperty(task)
+  registerTask(track, task)
+  return task
+}
+
+/**
+ * Wait for all tasks to finish.
+ */
+export function all<TNumber extends number>(track: Track<TNumber>, tasks: Task<TNumber>[]): TaskFunc<TNumber> {
+  return runProcedural(
+    track,
+    (function* () {
+      for (const t of tasks) {
+        yield t
+      }
+    })(),
+    'local',
+  )
+}
+
+/**
+ * Wait until any task finishes.
+ */
+export function any<TNumber extends number>(tasks: Task<TNumber>[]): TaskAny<TNumber> {
+  const task = {
+    type: 'any',
+    tasks,
+    _isSuspended: false,
+    _suspensionMode: 'local' as const,
+    wait: () => task,
+  } as TaskAny<TNumber>
+  installSuspensionProperty(task)
+  return task
+}
+
+function setTaskSuspended<TNumber extends number>(track: Track<TNumber>, task: Task<TNumber>, isSuspended: boolean, visited = new Set<Task<TNumber>>()) {
+  if (visited.has(task))
+    return
+  visited.add(task)
+
+  task._isSuspended = isSuspended
+
+  const state = track.states.get(task)
+  if (!state || state.done)
+    return
+
+  state.suspended = isSuspended
+
+  if (task._suspensionMode !== 'propagate')
+    return
+
+  if (state.type === 'func' && state.waitTarget) {
+    setTaskSuspended(track, state.waitTarget, isSuspended, visited)
+  }
+}
+
+function cancel<TNumber extends number>(track: Track<TNumber>, task: Task<TNumber>) {
+  const state = track.states.get(task)
+  if (!state || state.done)
+    return
+
+  state.done = true
+  if (state.type === 'func' && state.waitTarget) {
+    cancel(track, state.waitTarget)
+  }
+  else if (state.type === 'any') {
+    state.tasks.forEach(t => cancel(track, t))
+  }
+}
+
+function processEvents<TNumber extends number>(track: Track<TNumber>): boolean {
+  let wokeUpSomeone = false
+  const entries = Array.from(track.states.entries())
+
+  for (const [task, state] of entries) {
+    if (state.done || state.suspended)
+      continue
+
+    switch (state.type) {
+      case 'constant': {
+        if (state.progress >= (task as TaskConstant<TNumber>).duration) {
+          state.done = true
+          wokeUpSomeone = true
+        }
+        break
+      }
+      case 'declarative': {
+        if (state.progress >= (task as TaskDeclarative<TNumber>).duration) {
+          state.done = true
+          wokeUpSomeone = true
+        }
+        break
+      }
+      case 'func': {
+        if (!state.waitTarget || track.states.get(state.waitTarget)?.done) {
+          const res = (task as TaskFunc<TNumber>).f.next()
+          if (res.done) {
+            state.done = true
+            state.waitTarget = undefined
+          }
+          else {
+            const nextTask = res.value
+            registerTask(track, nextTask)
+            state.waitTarget = nextTask
+          }
+          wokeUpSomeone = true
+        }
+        break
+      }
+      case 'any': {
+        const winner = state.tasks.find(t => track.states.get(t)?.done)
+        if (winner) {
+          state.done = true
+          wokeUpSomeone = true
+          state.tasks.forEach((child) => {
+            if (child !== winner)
+              cancel(track, child)
+          })
+        }
+        break
+      }
+    }
+  }
+
+  return wokeUpSomeone
+}
+
+function cloneStates<TNumber extends number>(states: Map<Task<TNumber>, ProcessState<TNumber>>): Map<Task<TNumber>, ProcessState<TNumber>> {
+  const cloned = new Map<Task<TNumber>, ProcessState<TNumber>>()
+  for (const [key, value] of states.entries()) {
+    cloned.set(key, { ...value } as ProcessState<TNumber>)
+  }
+  return cloned
+}
 
 /**
  * Compile the procedural states of the track into declarative time-to-state functions.
@@ -203,239 +388,113 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
   if (track.isCompilingOrEvaluating) {
     throw new Error('Cannot compile while compiling or evaluating.')
   }
-  const fixedTracks: TrackMaterialized<TNumber>[] = []
+
+  const frames: TrackMaterialized<TNumber>[] = []
   track.time = 0 as TNumber
   track.isMaterialized = false
   track.isCompilingOrEvaluating = true
-  // Call next() of the generator with least wait time
-  while (track.proceduralStates.filter(s => !s.suspended).length > 0 && track.time <= time) {
-    // Next state must be the one with duration defined
-    const filteredStates = track.proceduralStates.filter(s => s.wait.duration !== undefined && !s.suspended)
-    if (filteredStates.length === 0) {
-      throw new Error(`No procedural state with dependencies not specified and wait time specified found. ${toVisibleFixedTracks(fixedTracks).map(t => JSON.stringify(t, null, 2)).join('\n')}`)
+
+  while (track.time <= time) {
+    let isActive = true
+    while (isActive) {
+      isActive = processEvents(track)
     }
 
-    // State with least wait time
-    const nextState = filteredStates.reduce((least, s) => (s.wait.duration! < least.wait.duration! ? s : least))
-    // if (nextState.wait.duration === Infinity) {
-    //   throw new Error('No procedural state with fixed wait time found.')
-    // }
-
-    // Remove the state
-    track.proceduralStates = track.proceduralStates.filter(s => s !== nextState)
-
-    // Subtract the wait time of the state from all other states
-    const nextWaitTime = nextState.wait.duration!
-    track.proceduralStates.forEach((s) => {
-      if (s.wait.duration !== undefined && !s.suspended) {
-        s.wait.duration = (s.wait.duration - nextWaitTime) as TNumber
-      }
-    })
-    track.declarativeStates.forEach((s) => {
-      if (!s.suspended) {
-        s.progress = (s.progress + nextWaitTime) as TNumber
-      }
-    })
-
-    // Time must be updated before calling next()
-    track.time = (track.time + nextWaitTime) as TNumber
-
-    // If the generator is done, remove it
-    const iteratorResult = nextState.f.next()
-    if (iteratorResult.done) {
-      track.proceduralStates.forEach((s) => {
-        if (s.wait.dependencies !== undefined && s.wait.dependencies.values().some(t => t.done)) {
-          s.wait.duration = 0 as TNumber
-          delete s.wait.dependencies
-        }
-      })
-    }
-    // Otherwise, update the wait time of the generator to the new value returned by next()
-    else {
-      // track.proceduralStates.push({ ...nextState, wait: iteratorResult.value, totalCallsCount: nextState.totalCallsCount + 1 })
-      nextState.wait = iteratorResult.value
-      nextState.totalCallsCount += 1
-      track.proceduralStates.push(nextState)
-    }
-
-    // Remove declarative states that have ended
-    track.declarativeStates = track.declarativeStates.filter(s => s.progress < s.duration)
-
-    // Save the fixed track (copy)
-    fixedTracks.push({
+    frames.push({
       time: track.time,
-      refValues: new Map(track.refs.map(r => [r, r.current])),
-      proceduralStates: [...track.proceduralStates.map(s => ({ ...s }))],
-      declarativeStates: [...track.declarativeStates.map(s => ({ ...s }))],
+      refValues: new Map(track.refs.map(ref => [ref, ref.current])),
+      states: cloneStates(track.states),
     })
+
+    if (Array.from(track.states.values()).every(state => state.done)) {
+      break
+    }
+
+    let minDt = Infinity
+    for (const [task, state] of track.states.entries()) {
+      if ((state.type === 'constant' || state.type === 'declarative') && !state.done && !state.suspended) {
+        const duration = task.type === 'constant'
+          ? (task as TaskConstant<TNumber>).duration
+          : (task as TaskDeclarative<TNumber>).duration
+        const remaining = Number(duration) - Number(state.progress)
+        if (remaining < minDt) {
+          minDt = remaining
+        }
+      }
+    }
+
+    if (minDt === Infinity) {
+      throw new Error('Deadlock detected: remaining time is Infinity for all active processes.')
+    }
+
+    track.time = (Number(track.time) + minDt) as TNumber
+
+    for (const [task, state] of track.states.entries()) {
+      if (!state.done && !state.suspended) {
+        if (state.type === 'constant') {
+          state.progress = (Number(state.progress) + minDt) as TNumber
+        }
+        else if (state.type === 'declarative') {
+          state.progress = (Number(state.progress) + minDt) as TNumber
+          (task as TaskDeclarative<TNumber>).f(state.progress)
+        }
+      }
+    }
   }
 
-  // Update isRunningDeclarative
   track.isMaterialized = true
-
-  // Run remaining declarative states at the end
-  // for the case where time is not Infinity
-  track.declarativeStates.filter(s => s.progress < s.duration).forEach(s => s.f(s.progress))
   track.isCompilingOrEvaluating = false
-  return fixedTracks
+  return frames
 }
 
 /**
- * Evaluate the state of the track at a specific time using the fixed tracks generated by `compile()`.
+ * Convert compiled frames into a visible snapshot-friendly structure.
+ */
+export function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<typeof compile<TNumber>>) {
+  const firstFrame = fixedTracks[0]!
+  return fixedTracks.map((frame) => {
+    return {
+      time: frame.time,
+      refValues: new Map(Array.from(frame.refValues.entries()).map(([ref, value]) => [firstFrame.refValues.has(ref) ? 'Ref' : 'Unknown', value])),
+    }
+  })
+}
+
+/**
+ * Evaluate compiled frames at a specific time.
  * @param track The track to evaluate. Required to update the refs.
  * @param fixedTracks The fixed tracks generated by `compile()`.
  * @param time The time to evaluate the track at. Must be non-negative.
  */
-export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixedTracks: TrackMaterialized<TNumber>[], time: number) {
+export function useCompiled<TNumber extends number>(track: Track<TNumber>, fixedTracks: TrackMaterialized<TNumber>[], time: TNumber): void {
   if (track.isCompilingOrEvaluating) {
-    throw new Error('Cannot use compiled tracks while compiling or evaluating.')
+    throw new Error('Cannot evaluate while compiling or evaluating.')
   }
-  const fixedTrack = fixedTracks.findLast(t => t.time <= time)
+  track.isCompilingOrEvaluating = true
+
+  const fixedTrack = fixedTracks.findLast(frame => frame.time <= time)
   if (!fixedTrack) {
-    throw new Error(`No fixed track found for the given time.${time < 0 ? ' (Time cannot be negative.)' : ''}`)
+    track.isCompilingOrEvaluating = false
+    throw new Error('No fixed track found for the given time.')
   }
+
   track.refs.forEach((ref) => {
-    if (fixedTrack.refValues.has(ref)) {
-      ref.current = fixedTrack.refValues.get(ref)
-    }
+    ref.current = fixedTrack.refValues.get(ref)
   })
-  fixedTrack.declarativeStates.filter(s => s.progress < s.duration).forEach((s) => {
-    s.f((s.progress + (!s.suspended ? (time - fixedTrack.time) : 0)) as TNumber)
-  })
-}
 
-/**
- * Run a declarative function as a task and add it to the track. Must not be called within another declarative function.
- * @param track The track to add the task to.
- * @param f The declarative function to run as a task. The function will be called with the progress time as the argument, and can update the refs of the track. The function will be called every time the progress time is updated until the progress time reaches the duration of the task.
- * @param duration The duration of the task. Can be Infinity for infinite duration.
- * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that specifies the duration of the task. When the task is suspended, the progress time will not be updated and the function will not be called. When the task is resumed, the progress time will continue from where it was suspended.
- */
-export function runDeclarative<TNumber extends number>(track: Track<TNumber>, f: DeclarativeFunction<TNumber, void>, duration: TNumber): Task<Wait<TNumber>> {
-  if (track.isMaterialized) {
-    throw new Error('Cannot run a declarative function while another declarative function is running.')
-  }
-  const state = { f, progress: 0 as TNumber, duration, suspended: false }
-  track.declarativeStates.push(state)
-  return {
-    done: false,
-    suspend: () => {
-      if (state.suspended) {
-        throw new Error('Task is already suspended.')
-      }
-      if (track.isMaterialized) {
-        throw new Error('Cannot suspend a declarative function while another declarative function is running.')
-      }
-      state.suspended = true
-    },
-    resume: () => {
-      if (!state.suspended) {
-        throw new Error('Task is not suspended.')
-      }
-      if (track.isMaterialized) {
-        throw new Error('Cannot resume a declarative function while another declarative function is running.')
-      }
-      state.suspended = false
-    },
-    wait: () => sleep(duration),
-  }
-}
-
-/**
- * Run a procedural function as a task and add it to the track. Must not be called within a declarative function.
- * @param track The track to add the task to.
- * @param f The procedural function to run as a task. The function will be called immediately and can update the refs of the track. The function can yield Wait objects to specify the conditions for the function to be called again. When the function is suspended, it will not be called and the wait time will not be updated. When the function is resumed, it will continue from where it was suspended.
- * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that specifies the conditions for the task to be finished. When the task is suspended, the procedural function will not be called and the wait time will not be updated. When the task is resumed, the procedural function will continue from where it was suspended.
- */
-export function runProcedural<TNumber extends number>(track: Track<TNumber>, f: ProceduralFunction<Wait<TNumber>>): Task<Wait<TNumber>> {
-  if (track.isMaterialized) {
-    throw new Error('Cannot run a procedural function while a declarative function is running.')
-  }
-  // Run immediately
-  const state = { f, wait: { duration: 0 as TNumber }, totalCallsCount: 0, suspended: false }
-  track.proceduralStates.push(state)
-  return {
-    done: false,
-    suspend: () => {
-      if (state.suspended) {
-        throw new Error('Task is already suspended.')
-      }
-      if (track.isMaterialized) {
-        throw new Error('Cannot suspend a procedural function while a declarative function is running.')
-      }
-      state.suspended = true
-    },
-    resume: () => {
-      if (!state.suspended) {
-        throw new Error('Task is not suspended.')
-      }
-      if (track.isMaterialized) {
-        throw new Error('Cannot resume a procedural function while a declarative function is running.')
-      }
-      state.suspended = false
-    },
-    wait: () => ({
-      dependencies: new Set([f]),
-    }),
-  }
-}
-
-/**
- * Run multiple tasks in parallel and return a task that is finished when all of the tasks are finished.
- * @param track The track to add the task to. Required to run the task using `runProcedural()`.
- * @param tasks The tasks to run in parallel. The returned task will be finished when all of the tasks are finished.
- * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that is finished when all of the tasks are finished. When the task is suspended, all of the tasks will not be suspended. When the task is resumed, all of the tasks will not be resumed.
- */
-export function all<TNumber extends number>(track: Track<TNumber>, tasks: Task<Wait<TNumber>>[]): Task<Wait<TNumber>> {
-  return runProcedural(
-    track,
-    (function* () {
-      for (const t of tasks) {
-        yield t.wait()
-      }
-    })(),
-  )
-}
-
-/**
- * Run multiple tasks in parallel and return a task that is finished when any of the tasks is finished.
- * @param tasks The tasks to run in parallel. The returned task will be finished when any of the tasks is finished.
- * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that is finished when any of the tasks is finished. When the task is suspended, all of the tasks will be suspended. When the task is resumed, all of the tasks will be resumed.
- */
-export function any<TNumber extends number>(tasks: Task<Wait<TNumber>>[]): Task<Wait<TNumber>> {
-  return {
-    done: false,
-    suspend: () => tasks.forEach(t => t.suspend()),
-    resume: () => tasks.forEach(t => t.resume()),
-    wait: () => {
-      const waits = tasks.map(t => t.wait())
-      const dependencies = new Set(...waits.filter(w => w.dependencies !== undefined).map(w => w.dependencies!))
-      const duration = Math.min(...waits.filter(w => w.duration !== undefined).map(w => w.duration!)) as TNumber
-      return {
-        dependencies: dependencies.size > 0 ? dependencies : undefined,
-        duration: duration !== Infinity ? duration : undefined,
-      }
-    },
-  }
-}
-export function toVisibleFixedTracks<TNumber extends number>(fixedTracks: ReturnType<typeof compile<TNumber>>) {
-  return fixedTracks.map(fixedTrack =>
-    ({
-      ...fixedTrack,
-      proceduralStates: fixedTrack.proceduralStates.map((s) => {
-        let wait: any = s.wait
-        if (s.wait.dependencies) {
-          wait = { ...wait, dependencies: Array.from(s.wait.dependencies).map(f => f.name || 'anonymous') }
+  const dt = Number(time) - Number(fixedTrack.time)
+  if (dt > 0) {
+    for (const [task, state] of fixedTrack.states.entries()) {
+      if (state.type === 'declarative' && !state.suspended && !state.done) {
+        let progress = Number(state.progress) + dt
+        const duration = Number((task as TaskDeclarative<TNumber>).duration)
+        if (progress > duration) {
+          progress = duration
         }
-        return { ...s, f: s.f.name || 'anonymous', wait }
-      }),
-      declarativeStates: fixedTrack.declarativeStates.map(s => ({ ...s, f: s.f.name || 'anonymous',
-      })),
-      refValues: Array.from(fixedTrack.refValues.entries(), ([ref, value]) => ({
-        key: {
-          current: ref.current,
-        },
-        value,
-      })),
-    }))
+        ;(task as TaskDeclarative<TNumber>).f(progress as TNumber)
+      }
+    }
+  }
+
+  track.isCompilingOrEvaluating = false
 }

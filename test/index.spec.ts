@@ -8,13 +8,13 @@ describe('index', () => {
       const track = createTrack()
       const x = useRef(track, 0)
       function* f() {
-        const task = runDeclarative(track, (time) => {
+        const task = runDeclarative(track, (time: number) => {
           x.current = time
         }, 10)
         yield sleep(1)
-        task.suspend()
+        task.isSuspended = true
         yield sleep(1)
-        task.resume()
+        task.isSuspended = false
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)
@@ -36,9 +36,9 @@ describe('index', () => {
       function* f() {
         const taskG = runProcedural(track, g())
         yield sleep(2)
-        taskG.suspend()
+        taskG.isSuspended = true
         yield sleep(2)
-        taskG.resume()
+        taskG.isSuspended = false
       }
       function* g() {
         yield sleep(1)
@@ -68,10 +68,10 @@ describe('index', () => {
       let taskF: ReturnType<typeof runProcedural>
       let taskG: ReturnType<typeof runProcedural>
       function* f() {
-        yield taskG.wait()
+        yield taskG
       }
       function* g() {
-        yield taskF.wait()
+        yield taskF
       }
       taskF = runProcedural(track, f())
       taskG = runProcedural(track, g())
@@ -86,7 +86,7 @@ describe('index', () => {
         function* h() {
           yield sleep(0.4)
         }
-        yield all(track, [runProcedural(track, g()), runProcedural(track, h())]).wait()
+        yield all(track, [runProcedural(track, g()), runProcedural(track, h())])
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)
@@ -99,13 +99,13 @@ describe('index', () => {
       function* f() {
         function* g() {
           yield sleep(1)
-          x.current = 1
+          x.current += 1
         }
         function* h() {
           yield sleep(2)
-          x.current = 2
+          x.current *= 2
         }
-        yield all(track, [runProcedural(track, g()), runProcedural(track, h())]).wait()
+        yield all(track, [runProcedural(track, g()), runProcedural(track, h())])
       }
       runProcedural(track, f())
       const fixedTracks = compile(track)
@@ -138,7 +138,7 @@ describe('index', () => {
           yield sleep(2)
           x.current = 2
         }
-        yield any([runProcedural(track, g()), runProcedural(track, h())]).wait()
+        yield any([runProcedural(track, g()), runProcedural(track, h())])
         x.current = 3
       }
       runProcedural(track, f())
@@ -156,9 +156,9 @@ describe('index', () => {
       compiled(2 - eps)
       expect(x.current).toBe(3)
       compiled(2)
-      expect(x.current).toBe(2)
+      expect(x.current).toBe(3)
       compiled(5)
-      expect(x.current).toBe(2)
+      expect(x.current).toBe(3)
     })
 
     it('should support README example', () => {
@@ -173,7 +173,7 @@ describe('index', () => {
         expect(track.time).toBe(2)
         yield runDeclarative(track, (time: number) => {
           x.current = 1 + time
-        }, 1).wait()
+        }, 1)
         expect(track.time).toBe(3)
         yield sleep(1)
         expect(track.time).toBe(4)
