@@ -251,7 +251,7 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
 
   while (track.time <= time) {
     while (updateTaskDone(track)) {
-      while (updateTaskSuspended(track));
+      while (updateTaskSuspended(track.tasks));
     }
 
     const tasks = Array.from(track.tasks)
