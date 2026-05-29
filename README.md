@@ -30,7 +30,7 @@ npm install procedural-to-declarative
 
 ## Motivation
 
-Video generation using TypeScript is a hot topic. Typically such package requires a function that maps time to state.
+Video generation using TypeScript is a hot topic. Typically such package requires a function that maps time to state of HTML / React elements, etc.
 
 <!-- skip doccmd[all]: start -->
 
@@ -50,7 +50,7 @@ function proc() {
 }
 ```
 
-However if one would like to parallelize procudual functions, it turns out to be impossible, since the passed function cannot be "blocked" to sort the procedure (inner lines).
+Unfortunately, once trying to parallelize procedural functions, it turns out to be impossible, since the passed function cannot be **"blocked"** to sort the procedure (inner lines).
 
 ```ts
 function proc() {
@@ -58,7 +58,7 @@ function proc() {
   all([
     (() => {
       sleep(1)
-      x.current += 1 // 00:01 (Unable to block here!)
+      x.current += 1 // 00:01 (Unable to "block" here!)
       sleep(2)
       x.current += 2 // 00:03
     })(),
@@ -70,7 +70,7 @@ function proc() {
 }
 ```
 
-However, if we use `async/await` or `yield` (like `motion-canvas` did), we can "block" the function and sort the procedure.
+By using `async`/`await` or `yield` (like `motion-canvas` did), the function can be "blocked" and the procedure can be sorted.
 
 ```ts
 async function proc() {
@@ -114,6 +114,22 @@ Our package uses the second approach.
 
 ## Usage
 
+- `Track` is the main data structure and tracks everything.
+- `Task` is the main concept of this package.
+- `Ref` (`useRef`) registers a mutable reference to the track.
+- 2 type of functions exist:
+  - Procedural function (`IterableIterator<Task>`): `Ref` is read-write.
+  - Declarative function (`(time: number) => void`): `Ref` is write-only.
+- `compile` compiles the top-level procedural function into array of `TrackMaterialized`, which is a fixed `Track` at each time point.
+- `useCompiled` converts `TrackMaterialized` into a declarative function as a final output.
+- `Task` has 4 types:
+  - `TaskConstant`: returned by `sleep`, it just blocks for the specified time.
+  - `TaskProcedural`: returned by `runProcedural`, it blocks until the provided procedural function is completed.
+  - `TaskDeclarative`: returned by `runDeclarative`, it blocks until the provided declarative function is completed.
+  - `TaskAny`: returned by `any`, if `yield`ed, it blocks until any of the provided tasks is completed.
+- `Task`s can be suspended and resumed by setting `isSuspended` property to `true` and `false`.
+  - If `TaskProcedural` is suspended, all successor `Task`s invoked by the procedural function will also be suspended until the `TaskProcedural` is resumed.
+
 <!-- group doccmd[all]: start -->
 
 <!-- skip doccmd[all]: next -->
@@ -139,7 +155,7 @@ function* proc() {
   }, 1)
   yield sleep(1)
   x.current += 1
-  yield sleep(1)
+  yield sleep(2)
 }
 
 runProcedural(track, proc())
@@ -151,6 +167,8 @@ await plotHistory(track, compiled, x, 'plots/usage-x.png', 1000)
 -->
 
 <!-- group doccmd[all]: end -->
+
+### `x` history
 
 ![Usage x history](plots/usage-x.png)
 
@@ -189,7 +207,9 @@ function* proc() {
   yield sleep(1)
   task1.isSuspended = false
   yield task1
+  yield sleep(1)
   task2.isSuspended = true
+  yield sleep(2.5)
 }
 
 runProcedural(track, proc())
@@ -203,7 +223,12 @@ await plotHistory(track, compiled, y, 'plots/advanced-y.png', 1000)
 
 <!-- group doccmd[all]: end -->
 
+### `x` history
+
 ![Advanced x history](plots/advanced-x.png)
+
+### `y` history
+
 ![Advanced y history](plots/advanced-y.png)
 
 ## Comparison

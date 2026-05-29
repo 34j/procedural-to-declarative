@@ -1,4 +1,4 @@
-import type { Task, TaskFunc, Track } from './index'
+import type { Task, TaskProcedural, Track } from './index'
 import { runProcedural } from './index'
 
 /**
@@ -8,7 +8,7 @@ import { runProcedural } from './index'
  * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that is finished when all of the tasks are finished. When the task is suspended, all of the tasks will not be suspended. When the task is resumed, all of the tasks will not be resumed.
  */
 
-export function all<TNumber extends number>(track: Track<TNumber>, tasks: Task<TNumber>[]): TaskFunc<TNumber> {
+export function all<TNumber extends number>(track: Track<TNumber>, tasks: Task<TNumber>[]): TaskProcedural<TNumber> {
   return runProcedural(track, (function* () {
     for (const t of tasks) yield t
   })())
