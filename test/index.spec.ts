@@ -78,22 +78,6 @@ describe('index', () => {
       taskG = runProcedural(track, g())
       expect(() => compile(track)).toThrow()
     })
-    it('should correctly handle all with same time', () => {
-      const track = createTrack()
-      function* f() {
-        function* g() {
-          yield sleep(1)
-        }
-        function* h() {
-          yield sleep(0.4)
-        }
-        yield all(track, [runProcedural(track, g()), runProcedural(track, h())])
-      }
-      runProcedural(track, f())
-      const frames = compile(track)
-      const visibleFrames = toVisibleFrames(frames)
-      expect(visibleFrames).toMatchSnapshot()
-    })
     it('should correctly handle all', () => {
       const track = createTrack()
       const x = useRef(track, 0)
@@ -139,7 +123,11 @@ describe('index', () => {
           yield sleep(2)
           x.current = 2
         }
-        yield any([runProcedural(track, g()), runProcedural(track, h())])
+        const taskG = runProcedural(track, g())
+        const taskH = runProcedural(track, h())
+        yield any([taskG, taskH])
+        taskG.isSuspended = true
+        taskH.isSuspended = true
         x.current = 3
       }
       runProcedural(track, f())

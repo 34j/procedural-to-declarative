@@ -252,8 +252,8 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
       taskSnapshots: new Map(tasks.map(task => [task, { ...task }])),
     })
 
-    // If all tasks are done, we can stop compiling.
-    if (tasks.every(t => t.done))
+    // If all tasks are done or suspended, we can stop compiling.
+    if (tasks.every(t => t.done || t.isSuspended))
       break
 
     const tasksConstantOrDeclarative = Array.from(track.tasks).filter(t => t.type === 'constant' || t.type === 'declarative')

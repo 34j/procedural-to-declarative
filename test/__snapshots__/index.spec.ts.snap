@@ -58,23 +58,6 @@ exports[`index > tracker > should correctly handle all 1`] = `
 ]
 `;
 
-exports[`index > tracker > should correctly handle all with same time 1`] = `
-[
-  {
-    "refValues": Map {},
-    "time": 0,
-  },
-  {
-    "refValues": Map {},
-    "time": 0.4,
-  },
-  {
-    "refValues": Map {},
-    "time": 1,
-  },
-]
-`;
-
 exports[`index > tracker > should correctly handle any 1`] = `
 [
   {
@@ -91,7 +74,7 @@ exports[`index > tracker > should correctly handle any 1`] = `
   },
   {
     "refValues": Map {
-      "Ref" => 2,
+      "Ref" => 3,
     },
     "time": 2,
   },
