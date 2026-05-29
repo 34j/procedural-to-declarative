@@ -8,6 +8,30 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
     },
     "time": 0,
   },
+  {
+    "refValues": Map {
+      "Ref" => 1,
+    },
+    "time": 1,
+  },
+  {
+    "refValues": Map {
+      "Ref" => 1,
+    },
+    "time": 2,
+  },
+  {
+    "refValues": Map {
+      "Ref" => 1,
+    },
+    "time": 4,
+  },
+  {
+    "refValues": Map {
+      "Ref" => 2,
+    },
+    "time": 5,
+  },
 ]
 `;
 

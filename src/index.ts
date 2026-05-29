@@ -196,9 +196,17 @@ export function any<TNumber extends number>(tasks: Task<TNumber>[]): TaskAny<TNu
  * @returns
  */
 function updateTaskActive<TNumber extends number>(tasks: ReadonlySet<Readonly<Task<TNumber>>>): ReadonlyMap<Readonly<Task<TNumber>>, boolean> {
-  const taskActive = new Map<Task<TNumber>, boolean>(
-    Array.from(tasks).map(t => [t, !t.isSuspended && !t.done]),
-  )
+  const taskActive = new Map<Readonly<Task<TNumber>>, boolean>()
+  const updateTaskActiveRecursively = (task: Readonly<Task<TNumber>>): boolean => {
+    if (taskActive.has(task))
+      return taskActive.get(task)!
+
+    const isActive = !task.isSuspended && !task.done && (!task.calledBy || updateTaskActiveRecursively(task.calledBy))
+    taskActive.set(task, isActive)
+    return isActive
+  }
+
+  tasks.forEach(updateTaskActiveRecursively)
   return taskActive
 }
 
@@ -268,16 +276,16 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     })
 
     // If all tasks are done or suspended, we can stop compiling.
-    if (tasks.every(t => t.done || t.isSuspended))
+    if (tasksActive.values().every(active => !active))
       break
 
-    const tasksConstantOrDeclarativeActive = Array.from(track.tasks).filter(t => !tasksActive.get(t)!).filter(t => t.type === 'constant' || t.type === 'declarative')
+    const tasksConstantOrDeclarativeActive = Array.from(track.tasks).filter(t => tasksActive.get(t)!).filter(t => t.type === 'constant' || t.type === 'declarative')
 
     // Find the minimum time to advance among the non-suspended non-done constant and declarative tasks, which is the time to the next event.
     const dt = Math.min(...tasksConstantOrDeclarativeActive.map(t => (t.duration! - t.progress!) as TNumber), Infinity as TNumber)
 
     if (dt === Infinity)
-      throw new Error(`There is no progress to be made, but there are still unfinished tasks. This may be caused by all unfinished tasks being suspended, or by a deadlock in the procedural functions.` + ` Unfinished tasks: ${tasks.filter(t => !(t.done || t.isSuspended)).map(t => JSON.stringify(t)).join(', ')}`)
+      throw new Error(`There is no progress to be made, but there are still unfinished tasks. This may be caused by all unfinished tasks being suspended, or by a deadlock in the procedural functions.` + ` Unfinished tasks: ${tasks.filter(t => !(t.done || t.isSuspended)).map(t => JSON.stringify({ ...t, calledBy: undefined })).join(', ')}`)
 
     // Advance time by dt
     track.time = (track.time + dt) as TNumber
