@@ -3,6 +3,9 @@ shellEmulator: true
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - ast-v8-to-istanbul
+  - tinyexec
 onlyBuiltDependencies:
   - msw
   - skia-canvas
+allowBuilds:
+  skia-canvas: true
