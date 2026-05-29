@@ -1,7 +1,7 @@
 {
   "name": "procedural-to-declarative",
   "type": "commonjs",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Compile procedural state transitions (do, wait, set, wait, ...) into declarative time-to-state functions (t -> do, set).",
   "author": {
     "name": "34j"
