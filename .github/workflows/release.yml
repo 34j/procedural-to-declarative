@@ -54,8 +54,7 @@ jobs:
             lint-${{ runner.os }}-${{ steps.setup-node.outputs.node-version }}-pnpm-store-
       - name: Install dependencies
         run: |
-          pnpm approve-builds --all
-          pnpm install
+          pnpm install || pnpm approve-builds --all && pnpm install
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: '3.14'
@@ -112,8 +111,7 @@ jobs:
             test-${{ runner.os }}-${{ steps.setup-node.outputs.node-version }}-pnpm-store-
       - name: Install dependencies
         run: |
-          pnpm approve-builds --all
-          pnpm install
+          pnpm install || pnpm approve-builds --all && pnpm install
       # https://github.com/vitest-dev/vitest-browser-react/blob/0f5098200a6d02ecd64c8a5549787c371a532bd2/.github/workflows/ci.yml#L71
       - name: Install Playwright Dependencies
         # run only if "playwright" is in the devDependencies
@@ -171,8 +169,7 @@ jobs:
             release-${{ runner.os }}-${{ steps.setup-node.outputs.node-version }}-pnpm-store-
       - name: Install dependencies
         run: |
-          pnpm approve-builds --all
-          pnpm install
+          pnpm install || pnpm approve-builds --all && pnpm install
       - name: Build
         run: pnpm build
       - name: Docs
