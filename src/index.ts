@@ -215,7 +215,7 @@ function processEvents<TNumber extends number>(track: Track<TNumber>): boolean {
       continue
 
     if (task.type === 'constant' || task.type === 'declarative') {
-      if (Number(task.progress) >= Number(task.duration)) {
+      if (task.progress >= task.duration) {
         task.done = true
         wokeUpSomeone = true
       }
@@ -282,19 +282,19 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     let minDt = Infinity
     for (const task of track.tasks) {
       if ((task.type === 'constant' || task.type === 'declarative') && !task.done && !task.isSuspended) {
-        minDt = Math.min(minDt, Number(task.duration) - Number(task.progress))
+        minDt = Math.min(minDt, task.duration - task.progress) as TNumber
       }
     }
 
     if (minDt === Infinity)
       throw new Error('Deadlock detected: remaining time is Infinity for all active processes.')
 
-    track.time = (Number(track.time) + minDt) as TNumber
+    track.time = (track.time + minDt) as TNumber
 
     for (const task of track.tasks) {
       if (!task.done && !task.isSuspended) {
         if (task.type === 'constant' || task.type === 'declarative') {
-          task.progress = (Number(task.progress) + minDt) as TNumber
+          task.progress = (task.progress + minDt) as TNumber
           if (task.type === 'declarative')
             task.f(task.progress)
         }
@@ -339,10 +339,10 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, frame
     ref.current = fixedTrack.refValues.get(ref)
   })
 
-  const dt = Number(time) - Number(fixedTrack.time)
+  const dt = (time - fixedTrack.time) as TNumber
   for (const [task, snapshot] of fixedTrack.taskSnapshots.entries()) {
     if (task.type === 'declarative' && !task.isSuspended && !snapshot.done) {
-      task.f(Math.min(Number(snapshot.progress) + dt, Number(task.duration)) as TNumber)
+      task.f(Math.min(snapshot.progress + dt, task.duration) as TNumber)
     }
   }
 
