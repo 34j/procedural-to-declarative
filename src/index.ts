@@ -279,27 +279,22 @@ export function compile<TNumber extends number>(track: Track<TNumber>, time: TNu
     if (Array.from(track.tasks).every(t => t.done))
       break
 
-    let minDt = Infinity
-    for (const task of track.tasks) {
-      if ((task.type === 'constant' || task.type === 'declarative') && !task.done && !task.isSuspended) {
-        minDt = Math.min(minDt, task.duration - task.progress) as TNumber
-      }
-    }
+    const tasksConstantOrDeclarative = Array.from(track.tasks).filter(t => t.type === 'constant' || t.type === 'declarative')
+    const tasksConstantOrDeclarativeActive = tasksConstantOrDeclarative.filter(t => !t.done && !t.isSuspended)
 
-    if (minDt === Infinity)
-      throw new Error('Deadlock detected: remaining time is Infinity for all active processes.')
+    // Find the minimum time to advance among the non-suspended non-done constant and declarative tasks, which is the time to the next event.
+    const dt = Math.min(...tasksConstantOrDeclarativeActive.map(t => (t.duration! - t.progress!) as TNumber), Infinity as TNumber)
 
-    track.time = (track.time + minDt) as TNumber
+    if (dt === Infinity)
+      throw new Error('There is no progress to be made, but there are still unfinished tasks. This may be caused by all unfinished tasks being suspended, or by a deadlock in the procedural functions.')
 
-    for (const task of track.tasks) {
-      if (!task.done && !task.isSuspended) {
-        if (task.type === 'constant' || task.type === 'declarative') {
-          task.progress = (task.progress + minDt) as TNumber
-          if (task.type === 'declarative')
-            task.f(task.progress)
-        }
-      }
-    }
+    // Advance time by dt
+    track.time = (track.time + dt) as TNumber
+
+    // Advance the progress of the non-suspended non-done constant and declarative tasks by dt
+    tasksConstantOrDeclarativeActive.forEach((task) => {
+      task.progress = (task.progress! + dt) as TNumber
+    })
   }
 
   track.isMaterialized = true
