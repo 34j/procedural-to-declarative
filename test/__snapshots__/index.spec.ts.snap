@@ -24,13 +24,13 @@ exports[`index > tracker > should cancel and resume procedural 1`] = `
     "refValues": Map {
       "Ref" => 1,
     },
-    "time": 4,
+    "time": 3,
   },
   {
     "refValues": Map {
       "Ref" => 2,
     },
-    "time": 5,
+    "time": 4,
   },
 ]
 `;
@@ -88,6 +88,12 @@ exports[`index > tracker > should correctly handle any 1`] = `
       "Ref" => 3,
     },
     "time": 1,
+  },
+  {
+    "refValues": Map {
+      "Ref" => 2,
+    },
+    "time": 2,
   },
 ]
 `;
