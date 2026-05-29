@@ -35,7 +35,7 @@ export type ProceduralFunction<TNumber extends number> = IterableIterator<Task<T
 export interface TaskFunc<TNumber extends number = number> extends TaskBase {
   type: 'func'
   f: ProceduralFunction<TNumber>
-  waitTarget?: Task<TNumber>
+  waitTarget?: Task<TNumber> | undefined
 }
 
 /**
@@ -199,16 +199,10 @@ export function runDeclarative<TNumber extends number = number>(track: Track<TNu
 }
 
 /**
- * Wait for all tasks to finish.
- */
-export function all<TNumber extends number>(track: Track<TNumber>, tasks: Task<TNumber>[]): TaskFunc<TNumber> {
-  return runProcedural(track, (function* () {
-    for (const t of tasks) yield t
-  })())
-}
-
 /**
- * Wait until any task finishes.
+ * Run multiple tasks in parallel and return a task that is finished when any of the tasks is finished.
+ * @param tasks The tasks to run in parallel. The returned task will be finished when any of the tasks is finished.
+ * @returns A Task object that can be suspended and resumed. wait() returns a Wait object that is finished when all of the tasks are finished. When the task is suspended, all of the tasks will not be suspended. When the task is resumed, all of the tasks will not be resumed.
  */
 export function any<TNumber extends number>(tasks: Task<TNumber>[]): TaskAny<TNumber> {
   return { type: 'any', tasks, isSuspended: false, done: false }
@@ -346,11 +340,9 @@ export function useCompiled<TNumber extends number>(track: Track<TNumber>, frame
   })
 
   const dt = Number(time) - Number(fixedTrack.time)
-  if (dt > 0) {
-    for (const [task, snapshot] of fixedTrack.taskSnapshots.entries()) {
-      if (task.type === 'declarative' && !task.isSuspended && !snapshot.done) {
-        task.f(Math.min(Number(snapshot.progress) + dt, Number(task.duration)) as TNumber)
-      }
+  for (const [task, snapshot] of fixedTrack.taskSnapshots.entries()) {
+    if (task.type === 'declarative' && !task.isSuspended && !snapshot.done) {
+      task.f(Math.min(Number(snapshot.progress) + dt, Number(task.duration)) as TNumber)
     }
   }
 

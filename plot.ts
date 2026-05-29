@@ -17,8 +17,8 @@ export async function plotHistory<TNumber extends number>(
 ): Promise<void> {
   const maxTime = frames.length > 0 ? Number(frames.at(-1)!.time) : 0
   const points = Array.from({ length: numPoints }).flatMap((_, i) => {
-    const time = numPoints > 1 ? (maxTime * i) / (numPoints - 1) : 0
-    useCompiled(track, frames, time)
+    const time = (numPoints > 1 ? (maxTime * i) / (numPoints - 1) : 0) as TNumber
+    useCompiled<TNumber>(track, frames, time)
     return typeof ref.current === 'number' ? [{ x: time, y: ref.current }] : []
   })
 
